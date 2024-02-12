@@ -31,6 +31,7 @@ void main() {
 
     // Set the gl_Position using camera view matrix
     // gl_Position = camera_view_mat * vec4(real_position, 1.0);
+    
     gl_Position = camera_view_mat * vec4(a_position, 1.0);
     gl_PointSize = 5.0;
 }

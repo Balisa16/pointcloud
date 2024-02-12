@@ -24,10 +24,12 @@
 
 // #include <pointcloud.hpp>
 #include <reader.hpp>
+#include <vao.h>
+#include <ebo.h>
 
 // Function to read the contents of a file and return it as a string
 
-const int width = 800, height = 800;
+int width = 800, height = 800;
 
 GLuint indices[] = {
     0, 1, 2,
@@ -44,6 +46,132 @@ std::string shader_read(const char *filePath)
     buffer << file.rdbuf();
     return buffer.str();
 }
+
+class Cam
+{
+public:
+    Cam(int width, int height, glm::vec3 position) : width(width), height(height), Position(position)
+    {
+    }
+
+    ~Cam()
+    {
+    }
+
+    void Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform)
+    {
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
+
+        // Makes camera look in the right direction from the right position
+        view = glm::lookAt(Position, Position + Orientation, Up);
+        // Adds perspective to the scene
+        projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+
+        // Exports the camera matrix to the Vertex Shader
+        glUniformMatrix4fv(glGetUniformLocation(shader_id, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
+    }
+
+    void Inputs(GLFWwindow *window)
+    {
+        // Handles key inputs
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            Position += speed * Orientation;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        {
+            Position += speed * -glm::normalize(glm::cross(Orientation, Up));
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            Position += speed * -Orientation;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        {
+            Position += speed * glm::normalize(glm::cross(Orientation, Up));
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        {
+            Position += speed * Up;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        {
+            Position += speed * -Up;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        {
+            speed = 0.4f;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+        {
+            speed = 0.1f;
+        }
+
+        // Handles mouse inputs
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            // Hides mouse cursor
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+            // Prevents camera from jumping on the first click
+            if (firstClick)
+            {
+                glfwSetCursorPos(window, (width / 2), (height / 2));
+                firstClick = false;
+            }
+
+            // Stores the coordinates of the cursor
+            double mouseX;
+            double mouseY;
+            // Fetches the coordinates of the cursor
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+
+            // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
+            // and then "transforms" them into degrees
+            float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+            float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+
+            // Calculates upcoming vertical change in the Orientation
+            glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+
+            // Decides whether or not the next vertical Orientation is legal or not
+            if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+            {
+                Orientation = newOrientation;
+            }
+
+            // Rotates the Orientation left and right
+            Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
+
+            // Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
+            glfwSetCursorPos(window, (width / 2), (height / 2));
+        }
+        else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+        {
+            // Unhides cursor since camera is not looking around anymore
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            // Makes sure the next time the camera looks around it doesn't jump
+            firstClick = true;
+        }
+    }
+
+private:
+    glm::vec3 Position;
+    glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // Prevents the camera from jumping around when first clicking left click
+    bool firstClick = true;
+
+    // Stores the width and height of the window
+    int width;
+    int height;
+
+    // Adjust the speed of the camera and it's sensitivity when looking around
+    float speed = 0.1f;
+    float sensitivity = 100.0f;
+};
 
 // Function to compile a shader
 GLuint compileShader(GLenum shaderType, const char *shaderSource)
@@ -145,7 +273,7 @@ int main()
 
     GLfloat _temp = 0.4;
 
-    glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * 4, data.gl_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
 
     // Set the attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
@@ -156,11 +284,9 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Enables the Depth Buffer
     glEnable(GL_DEPTH_TEST);
 
-    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
-
+    Cam cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -175,9 +301,13 @@ int main()
         glBindVertexArray(VAO);
 
         // Set the modelViewProjection matrix (for simplicity, you can use an identity matrix here)
-        glm::mat4 modelViewProjection = glm::mat4(1.0);
-        GLuint mvpLocation = glGetUniformLocation(shaderProgram, "camera_view_mat");
-        glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(modelViewProjection));
+        // glm::mat4 modelViewProjection = glm::mat4(1.0);
+        // GLuint mvpLocation = glGetUniformLocation(shaderProgram, "camera_view_mat");
+        // glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(modelViewProjection));
+
+        cam.Inputs(window);
+
+        cam.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camera_view_mat");
 
         // Draw the point cloud
         glDrawArrays(GL_POINTS, 0, data.num_points);
