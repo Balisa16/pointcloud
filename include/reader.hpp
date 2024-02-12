@@ -231,8 +231,6 @@ private:
             delete[] data.gl_data;
         if (data.points != nullptr)
             delete[] data.points;
-
-        std::cout << "Test\n";
         data.gl_data = new GLfloat[data.num_points * 6];
         data.points = new pcl::PointXYZRGB[data.num_points];
         for (uint64_t i = 0; i < data.num_points; ++i)
@@ -247,9 +245,9 @@ private:
                 data.gl_data[i * 6] = point.x;
                 data.gl_data[i * 6 + 1] = point.y;
                 data.gl_data[i * 6 + 2] = point.z;
-                data.gl_data[i * 6 + 3] = point.r;
-                data.gl_data[i * 6 + 4] = point.g;
-                data.gl_data[i * 6 + 5] = point.b;
+                data.gl_data[i * 6 + 3] = point.r / 255.f;
+                data.gl_data[i * 6 + 4] = point.g / 255.f;
+                data.gl_data[i * 6 + 5] = point.b / 255.f;
                 data.points[i] = point;
             }
             else

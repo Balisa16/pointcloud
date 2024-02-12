@@ -70,7 +70,6 @@ int main()
 {
     PCDParser parser("../sample/pointcloud1.pcd");
     PCDFormat data = parser.get_data();
-    auto ddata = data.gl_data;
 
     glfwInit();
 
@@ -143,7 +142,10 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(*data.gl_data), data.gl_data, GL_STATIC_DRAW);
+
+    GLfloat _temp = 0.4;
+
+    glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * 4, data.gl_data, GL_STATIC_DRAW);
 
     // Set the attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
@@ -157,7 +159,7 @@ int main()
     // Enables the Depth Buffer
     glEnable(GL_DEPTH_TEST);
 
-    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 10.0f));
+    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -178,7 +180,7 @@ int main()
         glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(modelViewProjection));
 
         // Draw the point cloud
-        glDrawArrays(GL_POINTS, 0, sizeof(*data.gl_data) / (3 * sizeof(GLfloat)));
+        glDrawArrays(GL_POINTS, 0, data.num_points);
 
         glBindVertexArray(0);
         glUseProgram(0);
