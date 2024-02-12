@@ -67,28 +67,20 @@ GLuint compileShader(GLenum shaderType, const char *shaderSource)
 
 int main()
 {
-    PCD pcd("../sample/ICRA_willow_challenge/T_02/cloud_0000000000.pcd");
-    pcl::PointCloud<pcl::PointXYZ> cloud = pcd.get();
-    int cnt = 0;
-    for (auto &data : cloud.points)
-        if (!isnan(data.x))
-            cnt++;
-
+    PCD pcd("../sample/pointcloud.pcd");
+    pcl::PointCloud<pcl::PointXYZRGB> cloud = pcd.get();
+    std::cout << cloud.points.size() << std::endl;
     std::cout << std::fixed << std::setprecision(2);
-    GLfloat points[cnt * 6];
-    cnt = 0;
-    for (int i = 0; i < cloud.points.size(); i++)
+    GLfloat points[cloud.points.size() * 6];
+    for (int _i = 0; _i < cloud.points.size(); _i++)
     {
-        if (isnan(cloud.points[i].x))
-            continue;
-        points[cnt * 6] = cloud.points[i].x;
-        points[cnt * 6 + 1] = cloud.points[i].y;
-        points[cnt * 6 + 2] = cloud.points[i].z;
-        points[cnt * 6 + 3] = 1.f;
-        points[cnt * 6 + 4] = 1.f;
-        points[cnt * 6 + 5] = 1.f;
-        std::cout << points[cnt * 6] << " " << points[cnt * 6 + 1] << " " << points[cnt * 6 + 2] << '\n';
-        cnt++;
+        points[_i * 6] = cloud.points[_i].x;
+        points[_i * 6 + 1] = cloud.points[_i].y;
+        points[_i * 6 + 2] = cloud.points[_i].z;
+        points[_i * 6 + 3] = 1.0;
+        points[_i * 6 + 4] = 1.0;
+        points[_i * 6 + 5] = 1.0;
+        std::cout << int(cloud.points[_i].r) << " " << int(cloud.points[_i].g) << " " << int(cloud.points[_i].b) << '\n';
     }
 
     glfwInit();
@@ -165,8 +157,10 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
 
     // Set the attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -174,7 +168,7 @@ int main()
     // Enables the Depth Buffer
     glEnable(GL_DEPTH_TEST);
 
-    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 10.0f));
 
     // Main loop
     while (!glfwWindowShouldClose(window))

@@ -1,9 +1,9 @@
 #version 330 core
 
 layout (location = 0) in vec3 a_position;
-// layout (location = 1) in vec3 a_color;
+layout (location = 1) in vec3 a_color;
 
-// out vec3 color;
+out vec3 color;
 
 uniform mat4 camera_view_mat;
 // uniform vec3 point_take_position;
@@ -27,7 +27,7 @@ void main() {
     // vec3 real_position = rotation_mat * (a_position - point_take_position) + point_take_position;
 
     // Set the color output
-    // color = a_color;
+    color = a_color;
 
     // Set the gl_Position using camera view matrix
     // gl_Position = camera_view_mat * vec4(real_position, 1.0);

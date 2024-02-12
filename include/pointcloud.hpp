@@ -1,11 +1,18 @@
 #pragma once
 
 #include <pcl/io/pcd_io.h>
+// #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
 #include <boost/filesystem.hpp>
 #include <string>
 #include <fstream>
 #include <sstream>
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <pcl/point_types.h>./
 
 class PCD
 {
@@ -25,13 +32,13 @@ public:
         }
     }
 
-    pcl::PointCloud<pcl::PointXYZ> &get()
+    pcl::PointCloud<pcl::PointXYZRGB> &get()
     {
-        pcl::io::loadPCDFile<pcl::PointXYZ>(filename, pointcloud);
+        pcl::io::loadPCDFile<pcl::PointXYZRGB>(filename, pointcloud);
         return pointcloud;
     }
 
 private:
     std::string filename;
-    pcl::PointCloud<pcl::PointXYZ> pointcloud;
+    pcl::PointCloud<pcl::PointXYZRGB> pointcloud;
 };
