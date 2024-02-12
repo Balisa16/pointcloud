@@ -1,5 +1,4 @@
-#ifndef CAMERA_CLASS_H
-#define CAMERA_CLASS_H
+#pragma once
 
 #include <glad.h>
 #include <GLFW/glfw3.h>
@@ -15,7 +14,15 @@
 class Camera
 {
 public:
-    // Stores the main vectors of the camera
+    Camera(int width, int height, glm::vec3 position);
+
+    ~Camera();
+
+    void Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform);
+
+    void Inputs(GLFWwindow *window);
+
+private:
     glm::vec3 Position;
     glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -30,13 +37,4 @@ public:
     // Adjust the speed of the camera and it's sensitivity when looking around
     float speed = 0.1f;
     float sensitivity = 100.0f;
-
-    // Camera constructor to set up initial values
-    Camera(int width, int height, glm::vec3 position);
-
-    // Updates and exports the camera matrix to the Vertex Shader
-    void Matrix(float FOVdeg, float nearPlane, float farPlane, Shader &shader, const char *uniform);
-    // Handles camera inputs
-    void Inputs(GLFWwindow *window);
 };
-#endif

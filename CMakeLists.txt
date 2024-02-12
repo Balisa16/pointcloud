@@ -24,6 +24,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 add_library(${PROJECT_NAME}
+    src/transform.cc
     src/ebo.cc
     src/glad.c
     src/shader.cc

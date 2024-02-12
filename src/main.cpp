@@ -114,7 +114,7 @@ namespace fs = std::filesystem;
 #include <vao.h>
 #include <vbo.h>
 #include <ebo.h>
-#include <camera.h>
+#include <camera.hpp>
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -220,7 +220,7 @@ int main()
 
         cam.Inputs(window);
 
-        cam.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+        cam.Matrix(45.0f, 0.1f, 100.0f, shaderProgram.ID, "camMatrix");
 
         // Binds texture so that is appears in rendering
         brickTex.Bind();
