@@ -22,7 +22,8 @@
 #include <fstream>
 #include <sstream>
 
-#include <pointcloud.hpp>
+// #include <pointcloud.hpp>
+#include <reader.hpp>
 
 // Function to read the contents of a file and return it as a string
 
@@ -67,21 +68,9 @@ GLuint compileShader(GLenum shaderType, const char *shaderSource)
 
 int main()
 {
-    PCD pcd("../sample/pointcloud.pcd");
-    pcl::PointCloud<pcl::PointXYZRGB> cloud = pcd.get();
-    std::cout << cloud.points.size() << std::endl;
-    std::cout << std::fixed << std::setprecision(2);
-    GLfloat points[cloud.points.size() * 6];
-    for (int _i = 0; _i < cloud.points.size(); _i++)
-    {
-        points[_i * 6] = cloud.points[_i].x;
-        points[_i * 6 + 1] = cloud.points[_i].y;
-        points[_i * 6 + 2] = cloud.points[_i].z;
-        points[_i * 6 + 3] = 1.0;
-        points[_i * 6 + 4] = 1.0;
-        points[_i * 6 + 5] = 1.0;
-        std::cout << int(cloud.points[_i].r) << " " << int(cloud.points[_i].g) << " " << int(cloud.points[_i].b) << '\n';
-    }
+    PCDParser parser("../sample/pointcloud1.pcd");
+    PCDFormat data = parser.get_data();
+    auto ddata = data.gl_data;
 
     glfwInit();
 
@@ -154,7 +143,7 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(*data.gl_data), data.gl_data, GL_STATIC_DRAW);
 
     // Set the attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
@@ -189,7 +178,7 @@ int main()
         glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(modelViewProjection));
 
         // Draw the point cloud
-        glDrawArrays(GL_POINTS, 0, sizeof(points) / (3 * sizeof(GLfloat)));
+        glDrawArrays(GL_POINTS, 0, sizeof(*data.gl_data) / (3 * sizeof(GLfloat)));
 
         glBindVertexArray(0);
         glUseProgram(0);

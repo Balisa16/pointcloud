@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pcl/point_types.h>
+#include <GLFW/glfw3.h>
 #include <boost/filesystem.hpp>
 #include <string>
 #include <fstream>
@@ -38,6 +39,9 @@ struct PCDFormat
     uint64_t num_points;
     std::string format;
     pcl::PointXYZRGB *points;
+    GLfloat *gl_data;
+
+    PCDFormat() : points(new pcl::PointXYZRGB[0]), gl_data(new GLfloat[0]) {}
 
     friend std::ostream &operator<<(std::ostream &os, const PCDFormat &data)
     {
@@ -89,9 +93,7 @@ public:
     }
 
 private:
-    PCDFormat data;
-    bool
-    parse()
+    bool parse()
     {
         std::ifstream file(file_path);
         if (!file.is_open())
@@ -223,6 +225,16 @@ private:
         data.points = new pcl::PointXYZRGB[data.num_points];
 
         pcl::PointXYZRGB point;
+        if (data.num_points == 0)
+            return;
+        if (data.gl_data != nullptr)
+            delete[] data.gl_data;
+        if (data.points != nullptr)
+            delete[] data.points;
+
+        std::cout << "Test\n";
+        data.gl_data = new GLfloat[data.num_points * 6];
+        data.points = new pcl::PointXYZRGB[data.num_points];
         for (uint64_t i = 0; i < data.num_points; ++i)
         {
             std::string line;
@@ -232,6 +244,12 @@ private:
                 uint32_t rgb;
                 iss >> point.x >> point.y >> point.z >> rgb;
                 convert_rgb(rgb, point);
+                data.gl_data[i * 6] = point.x;
+                data.gl_data[i * 6 + 1] = point.y;
+                data.gl_data[i * 6 + 2] = point.z;
+                data.gl_data[i * 6 + 3] = point.r;
+                data.gl_data[i * 6 + 4] = point.g;
+                data.gl_data[i * 6 + 5] = point.b;
                 data.points[i] = point;
             }
             else
@@ -242,5 +260,7 @@ private:
         }
     }
 
+private:
     std::string file_path;
+    PCDFormat data;
 };
