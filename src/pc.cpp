@@ -31,14 +31,6 @@
 
 int width = 800, height = 800;
 
-GLuint indices[] = {
-    0, 1, 2,
-    0, 2, 3,
-    0, 1, 4,
-    1, 2, 4,
-    2, 3, 4,
-    3, 0, 4};
-
 std::string shader_read(const char *filePath)
 {
     std::ifstream file(filePath);
@@ -75,8 +67,10 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 
 int main()
 {
-    PCDParser parser("../sample/pointcloud1.pcd");
+    PCDReader parser("../sample/pointcloud1.pcd");
+    parser += "../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
+    std::cout << data;
 
     glfwInit();
 

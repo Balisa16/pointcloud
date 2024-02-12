@@ -21,14 +21,14 @@ void convert_rgb(const uint32_t &rgb, pcl::PointXYZRGB &point)
     point.g = (rgb >> 8) & 0xFF;
     point.r = rgb & 0xFF;
 }
-class PCDParser
+class PCDReader
 {
 public:
-    PCDParser(const std::string &filepath)
+    PCDReader(const std::string &filepath)
     {
         operator=(filepath);
     }
-    ~PCDParser()
+    ~PCDReader()
     {
         delete data.points;
     }
@@ -37,6 +37,44 @@ public:
     {
         file_path = filepath;
         parse();
+    }
+
+    void operator+=(const char *filepath)
+    {
+        PCDReader new_reader(filepath);
+        PCDFormat new_data = new_reader.get_data();
+
+        uint64_t new_size = data.num_points + new_data.num_points;
+        pcl::PointXYZRGB *temp_points = new pcl::PointXYZRGB[new_size];
+        GLfloat *temp_gl_data = new GLfloat[new_size * 6];
+        for (uint64_t i = 0; i < data.num_points; ++i)
+        {
+            temp_points[i] = data.points[i];
+            temp_gl_data[i * 6] = data.gl_data[i * 6];
+            temp_gl_data[i * 6 + 1] = data.gl_data[i * 6 + 1];
+            temp_gl_data[i * 6 + 2] = data.gl_data[i * 6 + 2];
+            temp_gl_data[i * 6 + 3] = data.gl_data[i * 6 + 3];
+            temp_gl_data[i * 6 + 4] = data.gl_data[i * 6 + 4];
+            temp_gl_data[i * 6 + 5] = data.gl_data[i * 6 + 5];
+        }
+        for (uint64_t i = 0; i < new_data.num_points; i++)
+        {
+            temp_points[data.num_points + i] = new_data.points[i];
+            temp_gl_data[(data.num_points + i) * 6] = new_data.gl_data[i * 6];
+            temp_gl_data[(data.num_points + i) * 6 + 1] = new_data.gl_data[i * 6 + 1];
+            temp_gl_data[(data.num_points + i) * 6 + 2] = new_data.gl_data[i * 6 + 2];
+            temp_gl_data[(data.num_points + i) * 6 + 3] = new_data.gl_data[i * 6 + 3];
+            temp_gl_data[(data.num_points + i) * 6 + 4] = new_data.gl_data[i * 6 + 4];
+            temp_gl_data[(data.num_points + i) * 6 + 5] = new_data.gl_data[i * 6 + 5];
+        }
+
+        delete data.points;
+        delete data.gl_data;
+        data.points = temp_points;
+        data.gl_data = temp_gl_data;
+        data.num_points += new_data.num_points;
+        data.height = 1;
+        data.width = data.num_points;
     }
 
     PCDFormat &get_data()
