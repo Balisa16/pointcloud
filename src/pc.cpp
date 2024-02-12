@@ -11,47 +11,85 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-// Vertex Shader
-const char *vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 position;
-    uniform mat4 modelViewProjection;
-    void main() {
-        gl_Position = modelViewProjection * vec4(position, 1.0);
-        gl_PointSize = 5.0; // Adjust the point size as needed
-    }
-)";
+#include <texture.h>
+#include <shader.h>
+#include <vao.h>
+#include <vbo.h>
+#include <ebo.h>
+#include <camera.h>
+#include <iomanip>
 
-// Fragment Shader
-const char *fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 fragColor;
-    void main() {
-        fragColor = vec4(1.0, 1.0, 1.0, 1.0); // White color for the point
-    }
-)";
+#include <fstream>
+#include <sstream>
+
+#include <pointcloud.hpp>
+
+// Function to read the contents of a file and return it as a string
 
 const int width = 800, height = 800;
 
+GLuint indices[] = {
+    0, 1, 2,
+    0, 2, 3,
+    0, 1, 4,
+    1, 2, 4,
+    2, 3, 4,
+    3, 0, 4};
+
+std::string shader_read(const char *filePath)
+{
+    std::ifstream file(filePath);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+// Function to compile a shader
+GLuint compileShader(GLenum shaderType, const char *shaderSource)
+{
+    GLuint shader = glCreateShader(shaderType);
+    glShaderSource(shader, 1, &shaderSource, nullptr);
+    glCompileShader(shader);
+
+    // Check for compilation errors
+    GLint success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        char infoLog[512];
+        glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
+        std::cerr << "Shader compilation failed:\n"
+                  << infoLog << std::endl;
+    }
+
+    return shader;
+}
+
 int main()
 {
+    PCD pcd("../sample/ICRA_willow_challenge/T_02/cloud_0000000000.pcd");
+    pcl::PointCloud<pcl::PointXYZ> cloud = pcd.get();
+    int cnt = 0;
+    for (auto &data : cloud.points)
+        if (!isnan(data.x))
+            cnt++;
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    if (pcl::io::loadPCDFile<pcl::PointXYZ>("../sample/ICRA_willow_challenge/T_02/cloud_0000000000.pcd", *cloud) == -1)
+    std::cout << std::fixed << std::setprecision(2);
+    GLfloat points[cnt * 6];
+    cnt = 0;
+    for (int i = 0; i < cloud.points.size(); i++)
     {
-        std::cerr << "Couldn't read PCD file" << std::endl;
-        exit(EXIT_FAILURE);
+        if (isnan(cloud.points[i].x))
+            continue;
+        points[cnt * 6] = cloud.points[i].x;
+        points[cnt * 6 + 1] = cloud.points[i].y;
+        points[cnt * 6 + 2] = cloud.points[i].z;
+        points[cnt * 6 + 3] = 1.f;
+        points[cnt * 6 + 4] = 1.f;
+        points[cnt * 6 + 5] = 1.f;
+        std::cout << points[cnt * 6] << " " << points[cnt * 6 + 1] << " " << points[cnt * 6 + 2] << '\n';
+        cnt++;
     }
-
-    GLfloat points[cloud->points.size() * 3];
-    for (int i = 0; i < cloud->points.size(); i++)
-    {
-        points[i * 3] = cloud->points[i].x;
-        points[i * 3 + 1] = cloud->points[i].y;
-        points[i * 3 + 2] = cloud->points[i].z;
-    }
-
-    std::cout << cloud->points.size() << std::endl;
 
     glfwInit();
 
@@ -80,16 +118,32 @@ int main()
     // In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
     glViewport(0, 0, width, height);
 
-    // Load GLAD s
+    // Generates Shader object using shaders default.vert and default.frag
+    // Shader shaderProgram("../script/pc.vert", "../script/pc.frag");
+
+    // // Generates Vertex Array Object and binds it
+    // VAO VAO1;
+    // VAO1.Bind();
+
+    // // Generates Vertex Buffer Object and links it to vertices
+    // VBO VBO1(points, sizeof(points));
+    // // Generates Element Buffer Object and links it to indices
+    // EBO EBO1(indices, sizeof(indices));
+
+    // // Links VBO attributes such as coordinates and colors to VAO
+    // VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
+    // // VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    // // Unbind all to prevent accidentally modifying them
+    // VAO1.Unbind();
+    // VBO1.Unbind();
+    // EBO1.Unbind();
+
+    std::string vertexShaderSource = shader_read("../script/pc.vert");
+    std::string fragmentShaderSource = shader_read("../script/pc.frag");
 
     // Compile shaders
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(fragmentShader);
+    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource.c_str());
+    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource.c_str());
 
     // Link shaders
     GLuint shaderProgram = glCreateProgram();
@@ -101,7 +155,6 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // Create Vertex Array Object and Vertex Buffer Object
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -118,9 +171,18 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    // Enables the Depth Buffer
+    glEnable(GL_DEPTH_TEST);
+
+    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
+        glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
+        // Clean the back buffer and depth buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Use the shader program
@@ -129,8 +191,8 @@ int main()
 
         // Set the modelViewProjection matrix (for simplicity, you can use an identity matrix here)
         glm::mat4 modelViewProjection = glm::mat4(1.0);
-        GLuint mvpLocation = glGetUniformLocation(shaderProgram, "modelViewProjection");
-        glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, &modelViewProjection[0][0]);
+        GLuint mvpLocation = glGetUniformLocation(shaderProgram, "camera_view_mat");
+        glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(modelViewProjection));
 
         // Draw the point cloud
         glDrawArrays(GL_POINTS, 0, sizeof(points) / (3 * sizeof(GLfloat)));
@@ -138,16 +200,17 @@ int main()
         glBindVertexArray(0);
         glUseProgram(0);
 
-        // Swap buffers and poll for events
         glfwSwapBuffers(window);
+        // Take care of all GLFW events
         glfwPollEvents();
     }
 
-    // Cleanup
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
-
+    // Delete window before ending the program
+    glfwDestroyWindow(window);
+    // Terminate GLFW before ending the program
     glfwTerminate();
     return 0;
 }
