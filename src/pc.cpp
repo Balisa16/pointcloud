@@ -101,30 +101,11 @@ int main()
     glfwMakeContextCurrent(window);
 
     gladLoadGL();
-    // Specify the viewport of OpenGL in the Window
-    // In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
+
+    // Specify the viewport of OpenGL in the Window0
     glViewport(0, 0, width, height);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    // Generates Shader object using shaders default.vert and default.frag
-    // Shader shaderProgram("../script/pc.vert", "../script/pc.frag");
-
-    // // Generates Vertex Array Object and binds it
-    // VAO VAO1;
-    // VAO1.Bind();
-
-    // // Generates Vertex Buffer Object and links it to vertices
-    // VBO VBO1(points, sizeof(points));
-    // // Generates Element Buffer Object and links it to indices
-    // EBO EBO1(indices, sizeof(indices));
-
-    // // Links VBO attributes such as coordinates and colors to VAO
-    // VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
-    // // VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void *)(3 * sizeof(float)));
-    // // Unbind all to prevent accidentally modifying them
-    // VAO1.Unbind();
-    // VBO1.Unbind();
-    // EBO1.Unbind();
 
     std::string vertexShaderSource = shader_read("../script/pc.vert");
     std::string fragmentShaderSource = shader_read("../script/pc.frag");

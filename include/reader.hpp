@@ -12,6 +12,7 @@
 #include <sstream>
 #include <vector>
 #include <types.hpp>
+#include <transform.hpp>
 
 void convert_rgb(const uint32_t &rgb, pcl::PointXYZRGB &point)
 {
@@ -184,6 +185,12 @@ private:
             delete[] data.points;
         data.gl_data = new GLfloat[data.num_points * 6];
         data.points = new pcl::PointXYZRGB[data.num_points];
+
+        bool is_need_transform = false;
+        Transform transf = data.view_point;
+        if (std::fabs(data.view_point.x) > .0f || std::fabs(data.view_point.y) > .0f || std::fabs(data.view_point.z) > .0f ||
+            std::fabs(data.view_point.qw) > .0f || std::fabs(data.view_point.qx) > .0f || std::fabs(data.view_point.qy) > .0f || std::fabs(data.view_point.qz) > .0f)
+            is_need_transform = true;
         for (uint64_t i = 0; i < data.num_points; ++i)
         {
             std::string line;
@@ -193,6 +200,8 @@ private:
                 uint32_t rgb;
                 iss >> point.x >> point.y >> point.z >> rgb;
                 convert_rgb(rgb, point);
+                if (is_need_transform)
+                    transf.transform(point, point);
                 data.gl_data[i * 6] = point.x;
                 data.gl_data[i * 6 + 1] = point.y;
                 data.gl_data[i * 6 + 2] = point.z;
