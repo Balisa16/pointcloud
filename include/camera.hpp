@@ -10,17 +10,20 @@
 #include <glm/gtx/vector_angle.hpp>
 
 #include <shader.hpp>
-
 class Camera
 {
 public:
-    Camera(int width, int height, glm::vec3 position);
+    Camera(GLFWwindow *window, int width, int height, glm::vec3 position);
 
     ~Camera();
 
     void Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform);
 
     void Inputs(GLFWwindow *window);
+
+    static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
+    void handle_scroll(double yoffset);
 
 private:
     glm::vec3 Position;

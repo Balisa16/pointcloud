@@ -1,11 +1,32 @@
 #include <camera.hpp>
 
-Camera::Camera(int width, int height, glm::vec3 position) : width(width), height(height), Position(position)
+Camera::Camera(GLFWwindow *window, int width, int height, glm::vec3 position) : width(width), height(height), Position(position)
 {
+    glfwSetScrollCallback(window, scroll_callback);
 }
 
 Camera::~Camera()
 {
+}
+
+void Camera::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    // Get user pointer (Camera instance) from the GLFW window
+    std::cout << "Scroll " << yoffset << '\n';
+    Camera *camera = static_cast<Camera *>(glfwGetWindowUserPointer(window));
+
+    // Check if the pointer is valid
+    if (camera)
+    {
+        camera->handle_scroll(yoffset);
+    }
+}
+
+// Non-static member function to handle scroll
+void Camera::handle_scroll(double yoffset)
+{
+    speed += 0.1f * static_cast<float>(yoffset);
+    std::cout << "Speed " << speed << '\n';
 }
 
 void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform)

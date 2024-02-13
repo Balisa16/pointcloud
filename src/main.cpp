@@ -206,7 +206,7 @@ int main()
     // Enables the Depth Buffer
     glEnable(GL_DEPTH_TEST);
 
-    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera cam(window, width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // Main while loop
     while (!glfwWindowShouldClose(window))

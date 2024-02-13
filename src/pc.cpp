@@ -57,14 +57,12 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Camera cam(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera cam(window, width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        win.clear();
 
         shader.Activate();
 
