@@ -33,144 +33,6 @@
 
 int width = 800, height = 800;
 
-struct Buffer
-{
-private:
-    uint64_t data_limit = 10000000;
-    uint64_t _size;
-
-public:
-    GLfloat *data;
-    Buffer() : data(new GLfloat[data_limit * 6]), _size(0) {}
-    void operator=(PCDFormat &new_data)
-    {
-        clear();
-        int __cnt = 0;
-        for (uint64_t i = 0; i < new_data.num_points; ++i)
-        {
-            if (__cnt >= data_limit)
-            {
-                _size = data_limit;
-                __cnt = 0;
-            }
-            data[__cnt * 6] = new_data.gl_data[i * 6];
-            data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
-            data[__cnt * 6 + 2] = new_data.gl_data[i * 6 + 2];
-            data[__cnt * 6 + 3] = new_data.gl_data[i * 6 + 3];
-            data[__cnt * 6 + 4] = new_data.gl_data[i * 6 + 4];
-            data[__cnt * 6 + 5] = new_data.gl_data[i * 6 + 5];
-            __cnt++;
-        }
-        if (_size < data_limit)
-            _size = __cnt;
-    }
-
-    void operator=(Buffer &new_data)
-    {
-        clear();
-        int __cnt = 0;
-        for (uint64_t i = 0; i < new_data.size(); ++i)
-        {
-            if (__cnt >= data_limit)
-            {
-                _size = data_limit;
-                __cnt = 0;
-            }
-
-            data[__cnt * 6] = new_data.data[i * 6];
-            data[__cnt * 6 + 1] = new_data.data[i * 6 + 1];
-            data[__cnt * 6 + 2] = new_data.data[i * 6 + 2];
-            data[__cnt * 6 + 3] = new_data.data[i * 6 + 3];
-            data[__cnt * 6 + 4] = new_data.data[i * 6 + 4];
-            data[__cnt * 6 + 5] = new_data.data[i * 6 + 5];
-            __cnt++;
-        }
-
-        if (_size < data_limit)
-            _size = __cnt;
-    }
-
-    void operator+=(PCDFormat &new_data)
-    {
-        int __cnt = _size;
-        for (uint64_t i = 0; i < new_data.num_points; ++i)
-        {
-            if (__cnt >= data_limit)
-            {
-                _size = data_limit;
-                __cnt = 0;
-            }
-            data[(__cnt + i) * 6] = new_data.gl_data[i * 6];
-            data[(__cnt + i) * 6 + 1] = new_data.gl_data[i * 6 + 1];
-            data[(__cnt + i) * 6 + 2] = new_data.gl_data[i * 6 + 2];
-            data[(__cnt + i) * 6 + 3] = new_data.gl_data[i * 6 + 3];
-            data[(__cnt + i) * 6 + 4] = new_data.gl_data[i * 6 + 4];
-            data[(__cnt + i) * 6 + 5] = new_data.gl_data[i * 6 + 5];
-            __cnt++;
-        }
-        if (_size < data_limit)
-            _size = __cnt;
-    }
-
-    Buffer operator+(const Buffer &buffer)
-    {
-        Buffer result;
-        result = *this;
-
-        // Copy data from the second buffer
-        uint64_t __cnt = result._size;
-        for (uint64_t i = 0; i < buffer._size; ++i)
-        {
-            // Check if data too large
-            if (__cnt >= data_limit)
-            {
-                result._size = data_limit;
-                __cnt = 0;
-            }
-
-            result.data[(__cnt + i) * 6] = buffer.data[i * 6];
-            result.data[(__cnt + i) * 6 + 1] = buffer.data[i * 6 + 1];
-            result.data[(__cnt + i) * 6 + 2] = buffer.data[i * 6 + 2];
-            result.data[(__cnt + i) * 6 + 3] = buffer.data[i * 6 + 3];
-            result.data[(__cnt + i) * 6 + 4] = buffer.data[i * 6 + 4];
-            result.data[(__cnt + i) * 6 + 5] = buffer.data[i * 6 + 5];
-            __cnt++;
-        }
-
-        if (result._size < data_limit)
-            result._size = __cnt;
-
-        return result;
-    }
-
-    void clear()
-    {
-        if (data != nullptr)
-            delete[] data;
-
-        data = new GLfloat[data_limit * 6];
-        _size = 0;
-    }
-
-    uint64_t size() const
-    {
-        return _size;
-    }
-
-    void resize(uint64_t maks_data)
-    {
-        data_limit = maks_data;
-        if (data != nullptr)
-            delete[] data;
-        data = new GLfloat[data_limit * 6];
-    }
-
-    GLfloat *get_data()
-    {
-        return data;
-    }
-};
-
 int main()
 {
     PCDReader parser("../sample/pointcloud1.pcd");
@@ -194,9 +56,9 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
@@ -213,11 +75,11 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
 
     // Main loop
 
-    int counter = 500;
+    int counter = 100;
     while (!glfwWindowShouldClose(window))
     {
         counter--;
@@ -229,16 +91,20 @@ int main()
 
         Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        // if (counter == 0)
-        // {
-        //     parser += "../sample/pointcloud3.pcd";
-        //     data = parser.get_data();
-        //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
-        //     glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
+        if (counter == 0 || counter == -100)
+        {
+            PCDReader parser2("../sample/pointcloud2.pcd");
+            if (counter == -100)
+                parser2 = "../sample/pointcloud3.pcd";
+            Buffer _temp_buff;
+            _temp_buff = parser2.get_data();
+            buff += _temp_buff;
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
 
-        glDrawArrays(GL_POINTS, 0, data.num_points);
+        glDrawArrays(GL_POINTS, 0, buff.size());
 
         // VAO1.Bind();
         glBindVertexArray(vao);

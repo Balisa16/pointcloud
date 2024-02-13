@@ -229,6 +229,8 @@ private:
         if (std::fabs(data.view_point.x) > .0f || std::fabs(data.view_point.y) > .0f || std::fabs(data.view_point.z) > .0f ||
             std::fabs(data.view_point.qw) > .0f || std::fabs(data.view_point.qx) > .0f || std::fabs(data.view_point.qy) > .0f || std::fabs(data.view_point.qz) > .0f)
             is_need_transform = true;
+
+        uint64_t real_num_point = 0;
         for (uint64_t i = 0; i < data.num_points; ++i)
         {
             std::string line;
@@ -247,6 +249,7 @@ private:
                 data.gl_data[i * 6 + 4] = point.g / 255.f;
                 data.gl_data[i * 6 + 5] = point.b / 255.f;
                 data.points[i] = point;
+                real_num_point++;
             }
             else
             {
@@ -254,6 +257,7 @@ private:
                 break;
             }
         }
+        data.num_points = real_num_point;
     }
 
 private:

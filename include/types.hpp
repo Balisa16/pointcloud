@@ -47,3 +47,161 @@ struct PCDFormat
         format = "";
     }
 };
+
+struct Buffer
+{
+private:
+    uint64_t data_limit = 10000000;
+    uint64_t _size;
+
+    void buff_check(uint64_t &size, uint64_t &counter)
+    {
+        if (counter >= data_limit)
+        {
+            size = data_limit;
+            std::cout << "Memory overflow\n";
+            counter = 0;
+        }
+    }
+
+public:
+    GLfloat *data;
+    Buffer() : data(new GLfloat[data_limit * 6]), _size(0) {}
+    void operator=(PCDFormat &new_data)
+    {
+        clear();
+        uint64_t __cnt = 0;
+        for (uint64_t i = 0; i < new_data.num_points; ++i)
+        {
+            buff_check(_size, __cnt);
+            data[__cnt * 6] = new_data.gl_data[i * 6];
+            data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
+            data[__cnt * 6 + 2] = new_data.gl_data[i * 6 + 2];
+            data[__cnt * 6 + 3] = new_data.gl_data[i * 6 + 3];
+            data[__cnt * 6 + 4] = new_data.gl_data[i * 6 + 4];
+            data[__cnt * 6 + 5] = new_data.gl_data[i * 6 + 5];
+            __cnt++;
+        }
+        if (__cnt < data_limit)
+            _size = __cnt - 1;
+    }
+
+    void operator=(Buffer &new_data)
+    {
+        clear();
+        std::cout << "New data\n";
+        uint64_t __cnt = 0;
+        for (uint64_t i = 0; i < new_data.size(); ++i)
+        {
+            buff_check(_size, __cnt);
+
+            data[__cnt * 6] = new_data.data[i * 6];
+            data[__cnt * 6 + 1] = new_data.data[i * 6 + 1];
+            data[__cnt * 6 + 2] = new_data.data[i * 6 + 2];
+            data[__cnt * 6 + 3] = new_data.data[i * 6 + 3];
+            data[__cnt * 6 + 4] = new_data.data[i * 6 + 4];
+            data[__cnt * 6 + 5] = new_data.data[i * 6 + 5];
+            __cnt++;
+        }
+
+        if (__cnt < data_limit)
+            _size = __cnt - 1;
+    }
+
+    void operator+=(PCDFormat &new_data)
+    {
+        uint64_t __cnt = _size - 1;
+        std::cout << "Add data\n";
+        for (uint64_t i = 0; i < new_data.num_points; ++i)
+        {
+
+            buff_check(_size, __cnt);
+            data[(__cnt + i) * 6] = new_data.gl_data[i * 6];
+            data[(__cnt + i) * 6 + 1] = new_data.gl_data[i * 6 + 1];
+            data[(__cnt + i) * 6 + 2] = new_data.gl_data[i * 6 + 2];
+            data[(__cnt + i) * 6 + 3] = new_data.gl_data[i * 6 + 3];
+            data[(__cnt + i) * 6 + 4] = new_data.gl_data[i * 6 + 4];
+            data[(__cnt + i) * 6 + 5] = new_data.gl_data[i * 6 + 5];
+            __cnt++;
+        }
+        if (__cnt < data_limit)
+            _size = __cnt;
+    }
+
+    void operator+=(Buffer &new_data)
+    {
+        uint64_t __cnt = _size - 1;
+        std::cout << "Add data\n";
+        for (uint64_t i = 0; i < new_data.size(); ++i)
+        {
+
+            buff_check(_size, __cnt);
+            data[(__cnt + i) * 6] = new_data.data[i * 6];
+            data[(__cnt + i) * 6 + 1] = new_data.data[i * 6 + 1];
+            data[(__cnt + i) * 6 + 2] = new_data.data[i * 6 + 2];
+            data[(__cnt + i) * 6 + 3] = new_data.data[i * 6 + 3];
+            data[(__cnt + i) * 6 + 4] = new_data.data[i * 6 + 4];
+            data[(__cnt + i) * 6 + 5] = new_data.data[i * 6 + 5];
+            __cnt++;
+        }
+        if (__cnt < data_limit)
+            _size = __cnt;
+    }
+
+    Buffer operator+(const Buffer &buffer)
+    {
+        Buffer result;
+        result = *this;
+
+        // Copy data from the second buffer
+        uint64_t __cnt = result._size <= 0 ? 0 : result._size - 1;
+        for (uint64_t i = 0; i < buffer._size; ++i)
+        {
+            buff_check(_size, __cnt);
+            result.data[(__cnt + i) * 6] = buffer.data[i * 6];
+            result.data[(__cnt + i) * 6 + 1] = buffer.data[i * 6 + 1];
+            result.data[(__cnt + i) * 6 + 2] = buffer.data[i * 6 + 2];
+            result.data[(__cnt + i) * 6 + 3] = buffer.data[i * 6 + 3];
+            result.data[(__cnt + i) * 6 + 4] = buffer.data[i * 6 + 4];
+            result.data[(__cnt + i) * 6 + 5] = buffer.data[i * 6 + 5];
+            __cnt++;
+        }
+
+        if (__cnt < data_limit)
+            result._size = __cnt - 1;
+
+        return result;
+    }
+
+    void clear()
+    {
+        if (data != nullptr)
+            delete[] data;
+
+        data = new GLfloat[data_limit * 6];
+        _size = 0;
+    }
+
+    uint64_t size() const
+    {
+        return _size;
+    }
+
+    void resize(uint64_t maks_data)
+    {
+        data_limit = maks_data;
+        if (data != nullptr)
+            delete[] data;
+        data = new GLfloat[data_limit * 6];
+    }
+
+    GLfloat *get_data()
+    {
+        return data;
+    }
+
+    uint64_t limit() const
+    {
+        return data_limit;
+    }
+};
