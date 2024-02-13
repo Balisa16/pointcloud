@@ -36,7 +36,7 @@ int width = 800, height = 800;
 struct Buffer
 {
 private:
-    const uint64_t data_limit = 600000;
+    uint64_t data_limit = 10000000;
     uint64_t _size;
 
 public:
@@ -53,12 +53,12 @@ public:
                 _size = data_limit;
                 __cnt = 0;
             }
-            data[__cnt * 6] = new_data.points[i].x;
-            data[__cnt * 6 + 1] = new_data.points[i].y;
-            data[__cnt * 6 + 2] = new_data.points[i].z;
-            data[__cnt * 6 + 3] = new_data.points[i].r;
-            data[__cnt * 6 + 4] = new_data.points[i].g;
-            data[__cnt * 6 + 5] = new_data.points[i].b;
+            data[__cnt * 6] = new_data.gl_data[i * 6];
+            data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
+            data[__cnt * 6 + 2] = new_data.gl_data[i * 6 + 2];
+            data[__cnt * 6 + 3] = new_data.gl_data[i * 6 + 3];
+            data[__cnt * 6 + 4] = new_data.gl_data[i * 6 + 4];
+            data[__cnt * 6 + 5] = new_data.gl_data[i * 6 + 5];
             __cnt++;
         }
         if (_size < data_limit)
@@ -100,12 +100,12 @@ public:
                 _size = data_limit;
                 __cnt = 0;
             }
-            data[(__cnt + i) * 6] = new_data.points[i].x;
-            data[(__cnt + i) * 6 + 1] = new_data.points[i].y;
-            data[(__cnt + i) * 6 + 2] = new_data.points[i].z;
-            data[(__cnt + i) * 6 + 3] = new_data.points[i].r;
-            data[(__cnt + i) * 6 + 4] = new_data.points[i].g;
-            data[(__cnt + i) * 6 + 5] = new_data.points[i].b;
+            data[(__cnt + i) * 6] = new_data.gl_data[i * 6];
+            data[(__cnt + i) * 6 + 1] = new_data.gl_data[i * 6 + 1];
+            data[(__cnt + i) * 6 + 2] = new_data.gl_data[i * 6 + 2];
+            data[(__cnt + i) * 6 + 3] = new_data.gl_data[i * 6 + 3];
+            data[(__cnt + i) * 6 + 4] = new_data.gl_data[i * 6 + 4];
+            data[(__cnt + i) * 6 + 5] = new_data.gl_data[i * 6 + 5];
             __cnt++;
         }
         if (_size < data_limit)
@@ -157,6 +157,14 @@ public:
         return _size;
     }
 
+    void resize(uint64_t maks_data)
+    {
+        data_limit = maks_data;
+        if (data != nullptr)
+            delete[] data;
+        data = new GLfloat[data_limit * 6];
+    }
+
     GLfloat *get_data()
     {
         return data;
@@ -171,9 +179,6 @@ int main()
     PCDFormat data = parser.get_data();
     buff = data;
 
-    for (uint64_t i = 0; i < buff.size(); ++i)
-        std::cout << i << '\t' << buff.data[i * 6] << " " << buff.data[i * 6 + 1] << " " << buff.data[i * 6 + 2] << std::endl;
-
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
 
@@ -186,7 +191,7 @@ int main()
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
@@ -224,14 +229,14 @@ int main()
 
         Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        if (counter == 0)
-        {
-            parser += "../sample/pointcloud3.pcd";
-            data = parser.get_data();
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
+        // if (counter == 0)
+        // {
+        //     parser += "../sample/pointcloud3.pcd";
+        //     data = parser.get_data();
+        //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        //     glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
+        //     glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // }
 
         glDrawArrays(GL_POINTS, 0, data.num_points);
 
