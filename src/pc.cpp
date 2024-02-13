@@ -33,41 +33,11 @@
 
 int width = 800, height = 800;
 
-std::string shader_read(const char *filePath)
-{
-    std::ifstream file(filePath);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-// Function to compile a shader
-GLuint compileShader(GLenum shaderType, const char *shaderSource)
-{
-    GLuint shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, &shaderSource, nullptr);
-    glCompileShader(shader);
-
-    // Check for compilation errors
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        char infoLog[512];
-        glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-        std::cerr << "Shader compilation failed:\n"
-                  << infoLog << std::endl;
-    }
-
-    return shader;
-}
-
 int main()
 {
     PCDReader parser("../sample/pointcloud1.pcd");
     parser += "../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
-    std::cout << data;
 
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
