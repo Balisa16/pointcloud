@@ -1,21 +1,20 @@
 #include <camera.hpp>
 
-Camera::Camera(GLFWwindow *window, int width, int height, glm::vec3 position) : width(width), height(height), Position(position)
+void Camera::camera_init(GLFWwindow *window, int width, int height, glm::vec3 position)
 {
+    this->width = width;
+    this->height = height;
+    this->window = window;
+    this->Position = position;
     glfwSetScrollCallback(window, scroll_callback);
-}
-
-Camera::~Camera()
-{
 }
 
 void Camera::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    // Get user pointer (Camera instance) from the GLFW window
-    std::cout << "Scroll " << yoffset << '\n';
+    get().mouse_scroll(yoffset > 0);
 }
 
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform)
+void Camera::camera_matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform)
 {
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -27,7 +26,15 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader
     glUniformMatrix4fv(glGetUniformLocation(shader_id, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
 }
 
-void Camera::Inputs(GLFWwindow *window)
+void Camera::mouse_scroll(bool up)
+{
+    if (up)
+        Position += speed * Orientation;
+    else
+        Position -= speed * Orientation;
+}
+
+void Camera::camera_inputs(GLFWwindow *window)
 {
     // Handles key inputs
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

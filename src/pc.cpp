@@ -57,7 +57,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Camera cam(window, width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -66,9 +66,9 @@ int main()
 
         shader.Activate();
 
-        cam.Inputs(window);
+        Camera::Inputs(window);
 
-        cam.Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
+        Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
         glDrawArrays(GL_POINTS, 0, data.num_points);
 

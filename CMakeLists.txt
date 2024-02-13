@@ -39,17 +39,17 @@ add_library(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} glfw ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
 
-add_executable(main_test src/main.cpp)
+# add_executable(main_test src/main.cpp)
 add_executable(pc src/pc.cpp)
 add_executable(testpcd test/main.cpp)
 
-# Link GLFW to your executable
-target_link_libraries(main_test PRIVATE
-glfw
-# -lGL
-${PROJECT_NAME}
-${PCL_LIBRARIES}
-${OPENGL_LIBRARIES})
+# # Link GLFW to your executable
+# target_link_libraries(main_test PRIVATE
+# glfw
+# # -lGL
+# ${PROJECT_NAME}
+# ${PCL_LIBRARIES}
+# ${OPENGL_LIBRARIES})
 
 target_link_libraries(pc PRIVATE
 glfw
