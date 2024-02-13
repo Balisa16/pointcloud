@@ -257,7 +257,7 @@ private:
                 break;
             }
         }
-        data.num_points = real_num_point;
+        data.num_points = real_num_point + 1;
     }
 
 private:

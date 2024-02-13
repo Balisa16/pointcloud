@@ -89,7 +89,6 @@ public:
     void operator=(Buffer &new_data)
     {
         clear();
-        std::cout << "New data\n";
         uint64_t __cnt = 0;
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
@@ -105,13 +104,12 @@ public:
         }
 
         if (__cnt < data_limit)
-            _size = __cnt - 1;
+            _size = __cnt;
     }
 
     void operator+=(PCDFormat &new_data)
     {
-        uint64_t __cnt = _size - 1;
-        std::cout << "Add data\n";
+        uint64_t __cnt = _size;
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
 
@@ -125,12 +123,12 @@ public:
             __cnt++;
         }
         if (__cnt < data_limit)
-            _size = __cnt;
+            _size = __cnt - 1;
     }
 
     void operator+=(Buffer &new_data)
     {
-        uint64_t __cnt = _size - 1;
+        uint64_t __cnt = _size;
         std::cout << "Add data\n";
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
@@ -145,7 +143,7 @@ public:
             __cnt++;
         }
         if (__cnt < data_limit)
-            _size = __cnt;
+            _size = __cnt - 1;
     }
 
     Buffer operator+(const Buffer &buffer)
@@ -154,7 +152,7 @@ public:
         result = *this;
 
         // Copy data from the second buffer
-        uint64_t __cnt = result._size <= 0 ? 0 : result._size - 1;
+        uint64_t __cnt = result._size - 1;
         for (uint64_t i = 0; i < buffer._size; ++i)
         {
             buff_check(_size, __cnt);
