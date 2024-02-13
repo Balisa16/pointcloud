@@ -110,7 +110,7 @@ namespace fs = std::filesystem;
 #include <glm/gtc/type_ptr.hpp>
 
 #include <texture.h>
-#include <shader.h>
+#include <shader.hpp>
 #include <vao.h>
 #include <vbo.h>
 #include <ebo.h>

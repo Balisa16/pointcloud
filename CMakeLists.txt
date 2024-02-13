@@ -34,6 +34,7 @@ add_library(${PROJECT_NAME}
     src/vbo.cc
     src/stb.cc
     src/camera.cc
+    src/window.cc
 )
 
 target_link_libraries(${PROJECT_NAME} glfw ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES})
