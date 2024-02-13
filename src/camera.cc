@@ -13,20 +13,6 @@ void Camera::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
     // Get user pointer (Camera instance) from the GLFW window
     std::cout << "Scroll " << yoffset << '\n';
-    Camera *camera = static_cast<Camera *>(glfwGetWindowUserPointer(window));
-
-    // Check if the pointer is valid
-    if (camera)
-    {
-        camera->handle_scroll(yoffset);
-    }
-}
-
-// Non-static member function to handle scroll
-void Camera::handle_scroll(double yoffset)
-{
-    speed += 0.1f * static_cast<float>(yoffset);
-    std::cout << "Speed " << speed << '\n';
 }
 
 void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader_id, const char *uniform)
@@ -34,9 +20,7 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint shader
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    // Makes camera look in the right direction from the right position
     view = glm::lookAt(Position, Position + Orientation, Up);
-    // Adds perspective to the scene
     projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
 
     // Exports the camera matrix to the Vertex Shader
