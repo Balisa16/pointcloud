@@ -79,7 +79,7 @@ int main()
 
     // Main loop
 
-    int counter = 100;
+    int counter = 3;
     while (!glfwWindowShouldClose(window))
     {
         counter--;
@@ -91,11 +91,19 @@ int main()
 
         Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        if (counter == 0 || counter == -100)
+        if (counter == 2)
         {
             PCDReader parser2("../sample/pointcloud2.pcd");
-            if (counter == -100)
-                parser2 = "../sample/pointcloud3.pcd";
+            Buffer _temp_buff;
+            _temp_buff = parser2.get_data();
+            buff += _temp_buff;
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+        else if (counter == 1)
+        {
+            PCDReader parser2("../sample/pointcloud3.pcd");
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;

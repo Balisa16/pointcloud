@@ -39,17 +39,19 @@ void Camera::camera_inputs(GLFWwindow *window)
     // Handles key inputs
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        Position += speed * Orientation;
+        Orientation = glm::rotate(Orientation, glm::radians(-.6f), glm::vec3(0.0f, 0.0f, -1.0f));
+        // Position += speed * Orientation;
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         Position += speed * -glm::normalize(glm::cross(Orientation, Up));
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        Position += speed * -Orientation;
+        Orientation = glm::rotate(Orientation, glm::radians(.6f), glm::vec3(0.0f, 0.0f, -1.0f));
+        // Position += speed * -Orientation;
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         Position += speed * glm::normalize(glm::cross(Orientation, Up));
     }
@@ -68,6 +70,16 @@ void Camera::camera_inputs(GLFWwindow *window)
     else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
     {
         speed = 0.1f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        Orientation = glm::rotate(Orientation, glm::radians(.4f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        Orientation = glm::rotate(Orientation, glm::radians(-.4f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     // Handles mouse inputs
