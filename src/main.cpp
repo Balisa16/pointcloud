@@ -34,18 +34,6 @@
 
 int width = 800, height = 800;
 
-// void draw_camera_frame(Buffer *buffer)
-// {
-
-//     int array_size = sizeof(pts) / sizeof(GLfloat);
-
-//     uint64_t curr_size = buffer->size();
-//     for (int i = 0; i < array_size; i++)
-//         buffer->data[i] = pts[i];
-
-//     glDrawArrays(GL_LINES, 0, array_size / 12);
-// }
-
 int main()
 {
     PCDReader parser("../sample/pointcloud1.pcd");
@@ -54,7 +42,6 @@ int main()
     PCDFormat data = parser.get_data();
     buff = data;
 
-    std::cout << "Sander\n";
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
 
@@ -94,7 +81,6 @@ int main()
     // Main loop
 
     int counter = 4;
-    std::cout << "Start loop\n";
     while (!glfwWindowShouldClose(window))
     {
         counter--;
@@ -128,7 +114,6 @@ int main()
         }
         else if (counter == 1)
         {
-            std::cout << "Reading ..." << std::endl;
             PCDReader parser2("../sample/pointcloud4.pcd");
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
