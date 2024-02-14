@@ -139,9 +139,9 @@ int main()
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
-        glDrawArrays(GL_POINTS, 0, buff.size());
+        glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
 
-        // glDrawArrays(GL_LINES, 0, buff.size() / 12);
+        glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
 
         glBindVertexArray(vao);
 

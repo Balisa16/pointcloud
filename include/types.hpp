@@ -58,6 +58,13 @@ public:
         for (int i = 0; i < data_start; i++)
             data[i] = camera_frame_lines[i];
     }
+
+    virtual ~Buffer()
+    {
+        if (data != nullptr)
+            delete[] data;
+    }
+
     void operator=(PCDFormat &new_data)
     {
         clear();
