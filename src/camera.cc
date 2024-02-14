@@ -29,9 +29,9 @@ void Camera::camera_matrix(float FOVdeg, float nearPlane, float farPlane, GLuint
 void Camera::mouse_scroll(bool up)
 {
     if (up)
-        Position += speed * Orientation;
+        Position += 2 * speed * Orientation;
     else
-        Position -= speed * Orientation;
+        Position -= 2 * speed * Orientation;
 }
 
 void Camera::camera_inputs(GLFWwindow *window)

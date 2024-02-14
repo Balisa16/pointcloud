@@ -50,20 +50,6 @@ struct PCDFormat
 
 struct Buffer
 {
-private:
-    uint64_t data_limit = 10000000;
-    uint64_t _size;
-
-    void buff_check(uint64_t &size, uint64_t &counter)
-    {
-        if (counter >= data_limit)
-        {
-            size = data_limit;
-            std::cout << "Memory overflow\n";
-            counter = 0;
-        }
-    }
-
 public:
     GLfloat *data;
     Buffer() : data(new GLfloat[data_limit * 6]), _size(0) {}
@@ -176,7 +162,11 @@ public:
         if (data != nullptr)
             delete[] data;
 
-        data = new GLfloat[data_limit * 6];
+        data = new GLfloat[data_start + data_limit * 6];
+
+        // Fill camera frame lines
+        for (int i = 0; i < data_start; i++)
+            data[i] = camera_frame_lines[i];
         _size = 0;
     }
 
@@ -188,9 +178,7 @@ public:
     void resize(uint64_t maks_data)
     {
         data_limit = maks_data;
-        if (data != nullptr)
-            delete[] data;
-        data = new GLfloat[data_limit * 6];
+        clear();
     }
 
     GLfloat *get_data()
@@ -202,4 +190,35 @@ public:
     {
         return data_limit;
     }
+
+    uint32_t start() const
+    {
+        return data_start;
+    }
+
+private:
+    uint64_t data_limit = 10000000;
+    uint64_t _size;
+
+    constexpr uint32_t data_start = 96;
+
+    void buff_check(uint64_t &size, uint64_t &counter)
+    {
+        if (counter >= data_limit)
+        {
+            size = data_limit;
+            std::cout << "Memory overflow\n";
+            counter = 0;
+        }
+    }
+
+    const GLfloat camera_frame_lines[96] = {
+        0.f, 0.f, .0f, 1.f, .0f, .0f, .15f, .15f, .20f, 1.f, .0f, .0f,
+        0.f, 0.f, .0f, 1.f, .0f, .0f, .15f, -.15f, .20f, 1.f, .0f, .0f,
+        0.f, 0.f, .0f, 1.f, .0f, .0f, -.15f, .15f, .20, 1.f, .0f, .0f,
+        0.f, 0.f, .0f, 1.f, .0f, .0f, -.15f, -.15f, .20f, 1.f, .0f, .0f,
+        -.15f, -.15f, .20f, 1.f, .0f, .0f, .15f, -.15f, .20f, 1.f, .0f, .0f,
+        .15f, -.15f, .20f, 1.f, .0f, .0f, .15f, .15f, .20f, 1.f, .0f, .0f,
+        .15f, .15f, .20f, 1.f, .0f, .0f, -.15f, .15f, .20, 1.f, .0f, .0f,
+        -.15f, .15f, .20, 1.f, .0f, .0f, -.15f, -.15f, .20f, 1.f, .0f, .0f};
 };

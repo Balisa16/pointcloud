@@ -1,6 +1,7 @@
 
 #include <glad.h>
 #include <GLFW/glfw3.h>
+#include <GL/glut.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,6 +33,18 @@
 // Function to read the contents of a file and return it as a string
 
 int width = 800, height = 800;
+
+void draw_camera_frame(Buffer *buffer)
+{
+
+    int array_size = sizeof(pts) / sizeof(GLfloat);
+
+    uint64_t curr_size = buffer->size();
+    for (int i = 0; i < array_size; i++)
+        buffer->data[i] = pts[i];
+
+    glDrawArrays(GL_LINES, 0, array_size / 12);
+}
 
 int main()
 {
@@ -79,7 +92,7 @@ int main()
 
     // Main loop
 
-    int counter = 3;
+    int counter = 4;
     while (!glfwWindowShouldClose(window))
     {
         counter--;
@@ -91,7 +104,7 @@ int main()
 
         Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        if (counter == 2)
+        if (counter == 3)
         {
             PCDReader parser2("../sample/pointcloud2.pcd");
             Buffer _temp_buff;
@@ -101,7 +114,7 @@ int main()
             glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-        else if (counter == 1)
+        else if (counter == 2)
         {
             PCDReader parser2("../sample/pointcloud3.pcd");
             Buffer _temp_buff;
@@ -111,10 +124,21 @@ int main()
             glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
+        else if (counter == 1)
+        {
+            std::cout << "Reading ..." << std::endl;
+            PCDReader parser2("../sample/pointcloud4.pcd");
+            Buffer _temp_buff;
+            _temp_buff = parser2.get_data();
+            buff += _temp_buff;
+            std::cout << buff.size() << std::endl;
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
 
         glDrawArrays(GL_POINTS, 0, buff.size());
 
-        // VAO1.Bind();
         glBindVertexArray(vao);
 
         glfwSwapBuffers(window);
