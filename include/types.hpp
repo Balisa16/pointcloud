@@ -50,6 +50,11 @@ public:
     GLfloat *data;
     void add(const glm::vec3 &new_pos, const glm::quat &orientation)
     {
+        if (_size >= maks_size)
+        {
+            std::cerr << "Array reached limit. Rejected new point\n";
+            return;
+        }
         // Draw line from previous position to new position
         data[_size * data_unit] = last_position.x;
         data[_size * data_unit + 1] = last_position.y;
@@ -78,6 +83,28 @@ public:
         }
         _size++;
         last_position = new_pos;
+    }
+
+    int unit() const
+    {
+        return data_unit;
+    }
+
+    bool resize(int new_size)
+    {
+        if (_size * data_unit >= new_size * data_unit)
+        {
+            std::cerr << "Current data too large and new size too small\n";
+            return false;
+        }
+
+        maks_size = new_size;
+        GLfloat *_temp_data = new GLfloat[maks_size * data_unit];
+        for (int i = 0; i < _size * data_unit; i++)
+            _temp_data[i] = data[i];
+        delete[] data;
+        data = _temp_data;
+        return true;
     }
 
     int size() { return _size; }
