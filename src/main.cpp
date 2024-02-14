@@ -34,17 +34,17 @@
 
 int width = 800, height = 800;
 
-void draw_camera_frame(Buffer *buffer)
-{
+// void draw_camera_frame(Buffer *buffer)
+// {
 
-    int array_size = sizeof(pts) / sizeof(GLfloat);
+//     int array_size = sizeof(pts) / sizeof(GLfloat);
 
-    uint64_t curr_size = buffer->size();
-    for (int i = 0; i < array_size; i++)
-        buffer->data[i] = pts[i];
+//     uint64_t curr_size = buffer->size();
+//     for (int i = 0; i < array_size; i++)
+//         buffer->data[i] = pts[i];
 
-    glDrawArrays(GL_LINES, 0, array_size / 12);
-}
+//     glDrawArrays(GL_LINES, 0, array_size / 12);
+// }
 
 int main()
 {
@@ -54,104 +54,107 @@ int main()
     PCDFormat data = parser.get_data();
     buff = data;
 
-    Window win("Point Cloud", width, height);
-    GLFWwindow *window = win.get_window();
+    for (int i = 0; i < buff.size() + int(96 / 2); i++)
+        std::cout << i << '\t' << buff.data[6 * i] << " " << buff.data[6 * i + 1] << " " << buff.data[6 * i + 2] << " " << buff.data[6 * i + 3] << " " << buff.data[6 * i + 4] << " " << buff.data[6 * i + 5] << '\n';
 
-    Shader shader("../script/pc.vert", "../script/pc.frag");
+    // Window win("Point Cloud", width, height);
+    // GLFWwindow *window = win.get_window();
 
-    GLuint vao, vbo;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    // Shader shader("../script/pc.vert", "../script/pc.frag");
 
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // GLuint vao, vbo;
+    // glGenVertexArrays(1, &vao);
+    // glBindVertexArray(vao);
 
-    glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+    // glGenBuffers(1, &vbo);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+    // glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
 
-    // VAO VAO1;
-    // VAO1.Bind();
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
+    // glEnableVertexAttribArray(0);
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+    // glEnableVertexAttribArray(1);
+    // glBindVertexArray(0);
 
-    // VBO VBO1(data.gl_data, data.num_points * 6 * sizeof(GLfloat));
+    // // VAO VAO1;
+    // // VAO1.Bind();
 
-    // VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
-    // VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    // // VBO VBO1(data.gl_data, data.num_points * 6 * sizeof(GLfloat));
 
-    // VAO1.Unbind();
-    // VBO1.Unbind();
+    // // VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
+    // // VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void *)(3 * sizeof(float)));
 
-    glEnable(GL_DEPTH_TEST);
+    // // VAO1.Unbind();
+    // // VBO1.Unbind();
 
-    Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
+    // glEnable(GL_DEPTH_TEST);
 
-    // Main loop
+    // Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
 
-    int counter = 4;
-    while (!glfwWindowShouldClose(window))
-    {
-        counter--;
-        win.clear();
+    // // Main loop
 
-        shader.Activate();
+    // int counter = 4;
+    // while (!glfwWindowShouldClose(window))
+    // {
+    //     counter--;
+    //     win.clear();
 
-        Camera::Inputs(window);
+    //     shader.Activate();
 
-        Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
+    //     Camera::Inputs(window);
 
-        if (counter == 3)
-        {
-            PCDReader parser2("../sample/pointcloud2.pcd");
-            Buffer _temp_buff;
-            _temp_buff = parser2.get_data();
-            buff += _temp_buff;
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
-        else if (counter == 2)
-        {
-            PCDReader parser2("../sample/pointcloud3.pcd");
-            Buffer _temp_buff;
-            _temp_buff = parser2.get_data();
-            buff += _temp_buff;
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
-        else if (counter == 1)
-        {
-            std::cout << "Reading ..." << std::endl;
-            PCDReader parser2("../sample/pointcloud4.pcd");
-            Buffer _temp_buff;
-            _temp_buff = parser2.get_data();
-            buff += _temp_buff;
-            std::cout << buff.size() << std::endl;
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
+    //     Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        glDrawArrays(GL_POINTS, 0, buff.size());
+    //     if (counter == 3)
+    //     {
+    //         PCDReader parser2("../sample/pointcloud2.pcd");
+    //         Buffer _temp_buff;
+    //         _temp_buff = parser2.get_data();
+    //         buff += _temp_buff;
+    //         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //         glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+    //         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //     }
+    //     else if (counter == 2)
+    //     {
+    //         PCDReader parser2("../sample/pointcloud3.pcd");
+    //         Buffer _temp_buff;
+    //         _temp_buff = parser2.get_data();
+    //         buff += _temp_buff;
+    //         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //         glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+    //         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //     }
+    //     else if (counter == 1)
+    //     {
+    //         std::cout << "Reading ..." << std::endl;
+    //         PCDReader parser2("../sample/pointcloud4.pcd");
+    //         Buffer _temp_buff;
+    //         _temp_buff = parser2.get_data();
+    //         buff += _temp_buff;
+    //         std::cout << buff.size() << std::endl;
+    //         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //         glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+    //         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //     }
 
-        glBindVertexArray(vao);
+    //     glDrawArrays(GL_POINTS, 0, buff.size());
 
-        glfwSwapBuffers(window);
-        // Take care of all GLFW events
-        glfwPollEvents();
-    }
+    //     glBindVertexArray(vao);
 
-    shader.Delete();
-    // VAO1.Delete();
-    // VBO1.Delete();
-    glDeleteVertexArrays(1, &vao);
-    glDeleteVertexArrays(1, &vbo);
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    //     glfwSwapBuffers(window);
+    //     // Take care of all GLFW events
+    //     glfwPollEvents();
+    // }
+
+    // shader.Delete();
+    // // VAO1.Delete();
+    // // VBO1.Delete();
+    // glDeleteVertexArrays(1, &vao);
+    // glDeleteVertexArrays(1, &vbo);
+    // glfwDestroyWindow(window);
+    // glfwTerminate();
     return 0;
 }

@@ -52,11 +52,16 @@ struct Buffer
 {
 public:
     GLfloat *data;
-    Buffer() : data(new GLfloat[data_limit * 6]), _size(0) {}
+    Buffer() : data(new GLfloat[data_start + data_limit * 6]),
+               _size(0)
+    {
+        for (int i = 0; i < data_start; i++)
+            data[i] = camera_frame_lines[i];
+    }
     void operator=(PCDFormat &new_data)
     {
         clear();
-        uint64_t __cnt = 0;
+        uint64_t __cnt = data_start_6;
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
             buff_check(_size, __cnt);
@@ -68,14 +73,14 @@ public:
             data[__cnt * 6 + 5] = new_data.gl_data[i * 6 + 5];
             __cnt++;
         }
-        if (__cnt < data_limit)
-            _size = __cnt - 1;
+        if (__cnt - data_start_6 < data_limit)
+            _size = __cnt - data_start_6 - 1;
     }
 
     void operator=(Buffer &new_data)
     {
         clear();
-        uint64_t __cnt = 0;
+        uint64_t __cnt = data_start_6;
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
             buff_check(_size, __cnt);
@@ -89,13 +94,13 @@ public:
             __cnt++;
         }
 
-        if (__cnt < data_limit)
-            _size = __cnt;
+        if (__cnt - data_start_6 < data_limit)
+            _size = __cnt - data_start_6 - 1;
     }
 
     void operator+=(PCDFormat &new_data)
     {
-        uint64_t __cnt = _size;
+        uint64_t __cnt = _size + data_start_6;
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
 
@@ -108,14 +113,13 @@ public:
             data[(__cnt + i) * 6 + 5] = new_data.gl_data[i * 6 + 5];
             __cnt++;
         }
-        if (__cnt < data_limit)
-            _size = __cnt - 1;
+        if (__cnt - data_start_6 < data_limit)
+            _size = __cnt - data_start_6 - 1;
     }
 
     void operator+=(Buffer &new_data)
     {
-        uint64_t __cnt = _size;
-        std::cout << "Add data\n";
+        uint64_t __cnt = _size + data_start_6;
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
 
@@ -128,8 +132,9 @@ public:
             data[(__cnt + i) * 6 + 5] = new_data.data[i * 6 + 5];
             __cnt++;
         }
-        if (__cnt < data_limit)
-            _size = __cnt - 1;
+        std::cout << "Added new data\n";
+        if (__cnt - data_start_6 < data_limit)
+            _size = __cnt - data_start_6 - 1;
     }
 
     Buffer operator+(const Buffer &buffer)
@@ -138,7 +143,7 @@ public:
         result = *this;
 
         // Copy data from the second buffer
-        uint64_t __cnt = result._size - 1;
+        uint64_t __cnt = result._size + data_start_6;
         for (uint64_t i = 0; i < buffer._size; ++i)
         {
             buff_check(_size, __cnt);
@@ -151,8 +156,8 @@ public:
             __cnt++;
         }
 
-        if (__cnt < data_limit)
-            result._size = __cnt - 1;
+        if (__cnt - data_start_6 < data_limit)
+            result._size = __cnt - data_start_6 - 1;
 
         return result;
     }
@@ -200,11 +205,12 @@ private:
     uint64_t data_limit = 10000000;
     uint64_t _size;
 
-    constexpr uint32_t data_start = 96;
+    const uint32_t data_start = 96;
+    const uint32_t data_start_6 = 96 / 6;
 
     void buff_check(uint64_t &size, uint64_t &counter)
     {
-        if (counter >= data_limit)
+        if (counter + data_start_6 >= data_limit)
         {
             size = data_limit;
             std::cout << "Memory overflow\n";
