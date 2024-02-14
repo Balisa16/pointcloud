@@ -71,10 +71,10 @@ public:
                     start_frame[i * 3 + 2]),
                 new_pos,
                 orientation);
-            data[_size * data_unit + (i + 1) * 6] = transf_point.x;
-            data[_size * data_unit + (i + 1) * 6 + 1] = transf_point.y;
-            data[_size * data_unit + (i + 1) * 6 + 2] = transf_point.z;
-            data[_size * data_unit + (i + 1) * 6 + 3] = 1.f;
+            data[_size * data_unit + (i + 2) * 6] = transf_point.x;
+            data[_size * data_unit + (i + 2) * 6 + 1] = transf_point.y;
+            data[_size * data_unit + (i + 2) * 6 + 2] = transf_point.z;
+            data[_size * data_unit + (i + 2) * 6 + 3] = 1.f;
         }
         _size++;
         last_position = new_pos;
