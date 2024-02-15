@@ -16,8 +16,8 @@
 #include <window.hpp>
 
 #include <texture.h>
-// #include <vao.h>
-// #include <vbo.h>
+#include <vao.h>
+#include <vbo.h>
 #include <ebo.h>
 #include <camera.hpp>
 #include <iomanip>
@@ -30,7 +30,6 @@
 #include <reader.hpp>
 #include <vao.h>
 #include <ebo.h>
-#include <types.hpp>
 // Function to read the contents of a file and return it as a string
 
 int width = 800, height = 800;
@@ -48,44 +47,33 @@ int main()
 
     Shader shader("../script/pc.vert", "../script/pc.frag");
 
-    CameraFrame cam_frame;
-    cam_frame.add({1.0f, .0f, .0f}, {1.f, .0f, .0f, .0});
-    cam_frame.add({2.0f, .0f, .0f}, {1.f, .0f, .0f, .0});
-    cam_frame.add({3.0f, .0f, .0f}, {1.f, .0f, .0f, .0});
+    GLuint vao, vbo;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
-    GLuint vao1, vbo1, vao2, vbo2;
-    glGenVertexArrays(1, &vao1);
-    glBindVertexArray(vao1);
-
-    glGenBuffers(1, &vbo1);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
-
     glBindVertexArray(0);
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // VAO2
-    // glGenVertexArrays(1, &vao2);
-    // glBindVertexArray(vao2);
+    // VAO VAO1;
+    // VAO1.Bind();
 
-    // glGenBuffers(1, &vbo2);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+    // VBO VBO1(data.gl_data, data.num_points * 6 * sizeof(GLfloat));
 
-    // glBufferData(GL_ARRAY_BUFFER, (cam_frame.size() + 1) * cam_frame.unit() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
-    // // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-    // // glEnableVertexAttribArray(1);
+    // VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
+    // VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void *)(3 * sizeof(float)));
 
-    // glBindVertexArray(0);
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // VAO1.Unbind();
+    // VBO1.Unbind();
 
     glEnable(GL_DEPTH_TEST);
 
@@ -111,7 +99,7 @@ int main()
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;
-            glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
@@ -121,7 +109,7 @@ int main()
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;
-            glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
@@ -131,35 +119,26 @@ int main()
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;
-            glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
+        glBindVertexArray(vao);
 
-        glBindVertexArray(vao1);
         glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
+
         glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
-
-        // glBindVertexArray(vao2);
-        // glDrawArrays(GL_LINES, 0, cam_frame.size() * 18);
-        // std::cout << "Point 4\n";
-
-        // glBindVertexArray(vao_line);
 
         glfwSwapBuffers(window);
         // Take care of all GLFW events
         glfwPollEvents();
     }
-
     shader.Delete();
     // VAO1.Delete();
     // VBO1.Delete();
-    glDeleteVertexArrays(1, &vao1);
-    glDeleteVertexArrays(1, &vbo1);
 
-    // glDeleteVertexArrays(1, &vao2);
-    // glDeleteVertexArrays(1, &vbo2);
-
+    glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &vbo);
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

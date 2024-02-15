@@ -130,7 +130,7 @@ struct PCDFormat
     pcl::PointXYZRGB *points;
     GLfloat *gl_data;
 
-    PCDFormat() : points(new pcl::PointXYZRGB[0]), gl_data(new GLfloat[0]) {}
+    PCDFormat() : points(new pcl::PointXYZRGB[1]), gl_data(new GLfloat[1]) {}
 
     friend std::ostream &operator<<(std::ostream &os, const PCDFormat &data)
     {
@@ -149,7 +149,7 @@ struct PCDFormat
     void clear()
     {
         delete points;
-        points = new pcl::PointXYZRGB[0];
+        points = new pcl::PointXYZRGB[1];
         width = 0;
         height = 0;
         num_points = 0;
@@ -171,7 +171,7 @@ public:
     virtual ~Buffer()
     {
         if (data != nullptr)
-            delete[] data;
+            delete data;
     }
 
     void operator=(PCDFormat &new_data)

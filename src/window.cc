@@ -3,14 +3,22 @@
 Window::Window(std::string title, int width, int height)
     : title(title.c_str()), width(width), height(height)
 {
-    glfwInit();
+    this->title = title.c_str();
+    this->width = width;
+    this->height = height;
+
+    if (!glfwInit())
+    {
+        std::cout << "Failed to initialize GLFW\n";
+        exit(EXIT_FAILURE);
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+    window = glfwCreateWindow(this->width, this->height, this->title, nullptr, nullptr);
 
-    if (window == NULL)
+    if (!window)
     {
         std::cout << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -21,7 +29,7 @@ Window::Window(std::string title, int width, int height)
 
     gladLoadGL();
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, this->width, this->height);
 
     glfwSetFramebufferSizeCallback(window, resize_callback);
 }
@@ -58,10 +66,7 @@ void Window::window_resize(int width, int height)
 {
     this->width = width;
     this->height = height;
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, this->width, this->height);
 }
 
-Window::~Window()
-{
-    glfwTerminate();
-}
+Window::~Window() {}
