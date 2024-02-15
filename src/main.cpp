@@ -30,6 +30,7 @@
 #include <reader.hpp>
 #include <vao.h>
 #include <ebo.h>
+#include <types.hpp>
 // Function to read the contents of a file and return it as a string
 
 int width = 800, height = 800;
@@ -47,6 +48,12 @@ int main()
 
     Shader shader("../script/pc.vert", "../script/pc.frag");
 
+    std::cout << "Point 0\n";
+    CameraFrame cam_frame;
+    cam_frame.add({1.0f, .0f, .0f}, {1.f, .0f, .0f, .0});
+    cam_frame.add({2.0f, .0f, .0f}, {1.f, .0f, .0f, .0});
+    cam_frame.add({3.0f, .0f, .0f}, {1.f, .0f, .0f, .0});
+
     GLuint vao, vbo;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -63,6 +70,25 @@ int main()
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
+    std::cout << "Point 1\n";
+
+    GLuint vao_line, vbo_line;
+    glGenVertexArrays(2, &vao_line);
+    glBindVertexArray(vao_line);
+
+    glGenBuffers(2, &vbo_line);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_line);
+
+    glBufferData(GL_ARRAY_BUFFER, cam_frame.max_size() * cam_frame.unit() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_line);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
+
+    std::cout << "Point 2\n";
     // VAO VAO1;
     // VAO1.Bind();
 
@@ -124,11 +150,16 @@ int main()
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
+        std::cout << "Point 3\n";
         glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
-
         glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
 
         glBindVertexArray(vao);
+
+        // glDrawArrays(GL_POINTS, 0, cam_frame.size() * 18);
+        // std::cout << "Point 4\n";
+
+        // glBindVertexArray(vao_line);
 
         glfwSwapBuffers(window);
         // Take care of all GLFW events
@@ -140,6 +171,10 @@ int main()
     // VBO1.Delete();
     glDeleteVertexArrays(1, &vao);
     glDeleteVertexArrays(1, &vbo);
+
+    glDeleteVertexArrays(1, &vao_line);
+    glDeleteVertexArrays(1, &vbo_line);
+
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

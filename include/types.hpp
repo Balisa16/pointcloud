@@ -107,6 +107,11 @@ public:
         return true;
     }
 
+    int max_size()
+    {
+        return maks_size;
+    }
+
     int size() { return _size; }
     CameraFrame() : data(new GLfloat[maks_size * data_unit]), _size(0) {}
     virtual ~CameraFrame() { delete[] data; }
