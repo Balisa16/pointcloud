@@ -20,10 +20,35 @@ private:
 
 public:
     Window(std::string title = "Pointcloud", int width = 800, int height = 600);
+
+    /**
+     * @brief Get the window instance
+     *
+     * @return GLFWwindow* window
+     */
     GLFWwindow *get_window();
-    void clear();
+
+    /**
+     * @brief Clear the window
+     *
+     */
+    void clear() const;
+
+    /**
+     * @brief Set the background color object
+     *
+     * @tparam T
+     * @param color color code
+     */
     template <typename T>
     void set_bg_color(const T color);
+
+    /**
+     * @brief Resize the window
+     *
+     * @param width width (px)
+     * @param height height (px)
+     */
     void window_resize(int width, int height);
     virtual ~Window();
 };

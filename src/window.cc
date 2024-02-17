@@ -39,7 +39,7 @@ GLFWwindow *Window::get_window()
     return window;
 }
 
-void Window::clear()
+void Window::clear() const
 {
     glClearColor(bg_color(0), bg_color(1), bg_color(2), bg_color(3));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
