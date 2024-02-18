@@ -37,12 +37,12 @@ int width = 800, height = 800;
 int main()
 {
     PCDReader parser("../../sample/pointcloud1.pcd");
-    // Buffer buff;
-    // parser += "../sample/pointcloud3.pcd";
-    // PCDFormat data = parser.get_data();
-    // buff = data;
-
+    Buffer buff;
+    parser += "../../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
+    buff = data;
+
+    // PCDFormat data = parser.get_data();
 
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
@@ -95,36 +95,36 @@ int main()
 
         Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        // if (counter == 3)
-        // {
-        //     PCDReader parser2("../../sample/pointcloud2.pcd");
-        //     Buffer _temp_buff;
-        //     _temp_buff = parser2.get_data();
-        //     buff += _temp_buff;
-        //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-        //     glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
-        // else if (counter == 2)
-        // {
-        //     PCDReader parser2("../../sample/pointcloud3.pcd");
-        //     Buffer _temp_buff;
-        //     _temp_buff = parser2.get_data();
-        //     buff += _temp_buff;
-        //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-        //     glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
-        // else if (counter == 1)
-        // {
-        //     PCDReader parser2("../../sample/pointcloud4.pcd");
-        //     Buffer _temp_buff;
-        //     _temp_buff = parser2.get_data();
-        //     buff += _temp_buff;
-        //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-        //     glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
+        if (counter == 3)
+        {
+            PCDReader parser2("../../sample/pointcloud2.pcd");
+            Buffer _temp_buff;
+            // _temp_buff = parser2.get_data();
+            // buff += _temp_buff;
+            // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            // glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            // glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+        else if (counter == 2)
+        {
+            PCDReader parser3("../../sample/pointcloud3.pcd");
+            Buffer _temp_buff;
+            // _temp_buff = parser3.get_data();
+            // buff += _temp_buff;
+            // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            // glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            // glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+        else if (counter == 1)
+        {
+            PCDReader parser4("../../sample/pointcloud4.pcd");
+            Buffer _temp_buff;
+            // _temp_buff = parser4.get_data();
+            // buff += _temp_buff;
+            // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            // glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            // glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
         glBindVertexArray(vao);
 
         // glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
@@ -141,7 +141,5 @@ int main()
 
     glDeleteVertexArrays(1, &vao);
     glDeleteVertexArrays(1, &vbo);
-    glfwDestroyWindow(window);
-    glfwTerminate();
     return 0;
 }

@@ -10,7 +10,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 add_subdirectory(thirdparty/glfw)
 add_subdirectory(thirdparty/glm)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
     src/transform.cc
     src/ebo.cc
     src/glad.c

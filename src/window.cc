@@ -69,4 +69,8 @@ void Window::window_resize(int width, int height)
     glViewport(0, 0, this->width, this->height);
 }
 
-Window::~Window() {}
+Window::~Window()
+{
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
