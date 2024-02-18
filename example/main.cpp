@@ -98,7 +98,7 @@ int main()
         if (counter == 3)
         {
             PCDReader parser2("../../sample/pointcloud2.pcd");
-            Buffer _temp_buff;
+            // Buffer _temp_buff;
             // _temp_buff = parser2.get_data();
             // buff += _temp_buff;
             // glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -108,7 +108,7 @@ int main()
         else if (counter == 2)
         {
             PCDReader parser3("../../sample/pointcloud3.pcd");
-            Buffer _temp_buff;
+            // Buffer _temp_buff;
             // _temp_buff = parser3.get_data();
             // buff += _temp_buff;
             // glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -118,7 +118,7 @@ int main()
         else if (counter == 1)
         {
             PCDReader parser4("../../sample/pointcloud4.pcd");
-            Buffer _temp_buff;
+            // Buffer _temp_buff;
             // _temp_buff = parser4.get_data();
             // buff += _temp_buff;
             // glBindBuffer(GL_ARRAY_BUFFER, vbo);
