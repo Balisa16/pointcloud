@@ -6,116 +6,116 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-namespace Calculate
-{
-    inline glm::vec3 transform(const glm::vec3 point,
-                               const glm::vec3 in_translation,
-                               const glm::quat in_rotation)
-    {
-        glm::mat4 t_mat = glm::translate(glm::mat4(1.0f), in_translation);
+// namespace Calculate
+// {
+//     inline glm::vec3 transform(const glm::vec3 point,
+//                                const glm::vec3 in_translation,
+//                                const glm::quat in_rotation)
+//     {
+//         glm::mat4 t_mat = glm::translate(glm::mat4(1.0f), in_translation);
 
-        glm::mat4 r_mat = glm::mat4_cast(in_rotation);
+//         glm::mat4 r_mat = glm::mat4_cast(in_rotation);
 
-        glm::mat4 trans_mat = t_mat * r_mat;
+//         glm::mat4 trans_mat = t_mat * r_mat;
 
-        glm ::vec4 trans_vec = trans_mat * glm::vec4(point, 1.0f);
+//         glm ::vec4 trans_vec = trans_mat * glm::vec4(point, 1.0f);
 
-        return {trans_vec.x, trans_vec.y, trans_vec.z};
-    }
-}
+//         return {trans_vec.x, trans_vec.y, trans_vec.z};
+//     }
+// }
 
 struct ViewPoint
 {
     float x, y, z, qw, qx, qy, qz;
 };
 
-struct CameraFrame
-{
-private:
-    const int data_unit = 108;
-    int maks_size = 1000;
-    uint64_t _size;
-    glm::vec3 last_position = {.0f, .0f, .0f};
-    const GLfloat start_frame[48] = {
-        0.f, 0.f, .0f, .15f, .15f, .20f,
-        0.f, 0.f, .0f, .15f, -.15f, .20f,
-        0.f, 0.f, .0f, -.15f, .15f, .20,
-        0.f, 0.f, .0f, -.15f, -.15f, .20f,
-        -.15f, -.15f, .20f, .15f, -.15f, .20f,
-        .15f, -.15f, .20f, .15f, .15f, .20f,
-        .15f, .15f, .20f, -.15f, .15f, .20,
-        -.15f, .15f, .20, -.15f, -.15f, .20f};
+// struct CameraFrame
+// {
+// private:
+//     const int data_unit = 108;
+//     int maks_size = 1000;
+//     uint64_t _size;
+//     glm::vec3 last_position = {.0f, .0f, .0f};
+//     const GLfloat start_frame[48] = {
+//         0.f, 0.f, .0f, .15f, .15f, .20f,
+//         0.f, 0.f, .0f, .15f, -.15f, .20f,
+//         0.f, 0.f, .0f, -.15f, .15f, .20,
+//         0.f, 0.f, .0f, -.15f, -.15f, .20f,
+//         -.15f, -.15f, .20f, .15f, -.15f, .20f,
+//         .15f, -.15f, .20f, .15f, .15f, .20f,
+//         .15f, .15f, .20f, -.15f, .15f, .20,
+//         -.15f, .15f, .20, -.15f, -.15f, .20f};
 
-public:
-    GLfloat *data;
-    void add(const glm::vec3 &new_pos, const glm::quat &orientation)
-    {
-        if (_size >= maks_size)
-        {
-            std::cerr << "Array reached limit. Rejected new point\n";
-            return;
-        }
-        // Draw line from previous position to new position
-        data[_size * data_unit] = last_position.x;
-        data[_size * data_unit + 1] = last_position.y;
-        data[_size * data_unit + 2] = last_position.z;
-        data[_size * data_unit + 3] = 1.f; // red line
+// public:
+//     GLfloat *data;
+//     void add(const glm::vec3 &new_pos, const glm::quat &orientation)
+//     {
+//         if (_size >= maks_size)
+//         {
+//             std::cerr << "Array reached limit. Rejected new point\n";
+//             return;
+//         }
+//         // Draw line from previous position to new position
+//         data[_size * data_unit] = last_position.x;
+//         data[_size * data_unit + 1] = last_position.y;
+//         data[_size * data_unit + 2] = last_position.z;
+//         data[_size * data_unit + 3] = 1.f; // red line
 
-        data[_size * data_unit + 6] = new_pos.x;
-        data[_size * data_unit + 7] = new_pos.y;
-        data[_size * data_unit + 8] = new_pos.z;
-        data[_size * data_unit + 9] = 1.f;
+//         data[_size * data_unit + 6] = new_pos.x;
+//         data[_size * data_unit + 7] = new_pos.y;
+//         data[_size * data_unit + 8] = new_pos.z;
+//         data[_size * data_unit + 9] = 1.f;
 
-        glm::vec3 transf_point;
-        for (size_t i = 0; i < 16; i++)
-        {
-            transf_point = Calculate::transform(
-                glm::vec3(
-                    start_frame[i * 3],
-                    start_frame[i * 3 + 1],
-                    start_frame[i * 3 + 2]),
-                new_pos,
-                orientation);
-            data[_size * data_unit + (i + 2) * 6] = transf_point.x;
-            data[_size * data_unit + (i + 2) * 6 + 1] = transf_point.y;
-            data[_size * data_unit + (i + 2) * 6 + 2] = transf_point.z;
-            data[_size * data_unit + (i + 2) * 6 + 3] = 1.f;
-        }
-        _size++;
-        last_position = new_pos;
-    }
+//         glm::vec3 transf_point;
+//         for (size_t i = 0; i < 16; i++)
+//         {
+//             transf_point = Calculate::transform(
+//                 glm::vec3(
+//                     start_frame[i * 3],
+//                     start_frame[i * 3 + 1],
+//                     start_frame[i * 3 + 2]),
+//                 new_pos,
+//                 orientation);
+//             data[_size * data_unit + (i + 2) * 6] = transf_point.x;
+//             data[_size * data_unit + (i + 2) * 6 + 1] = transf_point.y;
+//             data[_size * data_unit + (i + 2) * 6 + 2] = transf_point.z;
+//             data[_size * data_unit + (i + 2) * 6 + 3] = 1.f;
+//         }
+//         _size++;
+//         last_position = new_pos;
+//     }
 
-    int unit() const
-    {
-        return data_unit;
-    }
+//     int unit() const
+//     {
+//         return data_unit;
+//     }
 
-    bool resize(int new_size)
-    {
-        if (_size * data_unit >= new_size * data_unit)
-        {
-            std::cerr << "Current data too large and new size too small\n";
-            return false;
-        }
+//     bool resize(int new_size)
+//     {
+//         if (_size * data_unit >= new_size * data_unit)
+//         {
+//             std::cerr << "Current data too large and new size too small\n";
+//             return false;
+//         }
 
-        maks_size = new_size;
-        GLfloat *_temp_data = new GLfloat[maks_size * data_unit];
-        for (int i = 0; i < _size * data_unit; i++)
-            _temp_data[i] = data[i];
-        delete[] data;
-        data = _temp_data;
-        return true;
-    }
+//         maks_size = new_size;
+//         GLfloat *_temp_data = new GLfloat[maks_size * data_unit];
+//         for (int i = 0; i < _size * data_unit; i++)
+//             _temp_data[i] = data[i];
+//         delete[] data;
+//         data = _temp_data;
+//         return true;
+//     }
 
-    int max_size()
-    {
-        return maks_size;
-    }
+//     int max_size()
+//     {
+//         return maks_size;
+//     }
 
-    int size() { return _size; }
-    CameraFrame() : data(new GLfloat[maks_size * data_unit]), _size(0) {}
-    virtual ~CameraFrame() { delete[] data; }
-};
+//     int size() { return _size; }
+//     CameraFrame() : data(new GLfloat[maks_size * data_unit]), _size(0) {}
+//     virtual ~CameraFrame() { delete[] data; }
+// };
 
 struct PCDFormat
 {

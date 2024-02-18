@@ -27,12 +27,11 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${EIGEN3_INCLUDE_DIR}
     ${PCL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glm)
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/thirdparty/glm)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
-    # ${PCL_LIBRARY_DIRS}
     ${PCL_COMMON_LIBRARIES}
     ${PCL_IO_LIBRARIES})
 
