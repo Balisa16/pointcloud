@@ -35,14 +35,14 @@ int width = 800, height = 800;
 
 int main()
 {
-    PCDReader parser("../sample/pointcloud1.pcd");
-    parser += "../sample/pointcloud3.pcd";
+    PCDReader parser("../../sample/pointcloud1.pcd");
+    parser += "../../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
 
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
 
-    Shader shader("../script/pc.vert", "../script/pc.frag");
+    Shader shader("../../script/pc.vert", "../../script/pc.frag");
 
     VAO VAO1;
     VAO1.Bind();

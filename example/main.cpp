@@ -36,7 +36,7 @@ int width = 800, height = 800;
 
 int main()
 {
-    PCDReader parser("../sample/pointcloud1.pcd");
+    PCDReader parser("../../sample/pointcloud1.pcd");
     Buffer buff;
     // parser += "../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
@@ -45,7 +45,7 @@ int main()
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
 
-    Shader shader("../script/pc.vert", "../script/pc.frag");
+    Shader shader("../../script/pc.vert", "../../script/pc.frag");
 
     GLuint vao, vbo;
     glGenVertexArrays(1, &vao);
@@ -95,7 +95,7 @@ int main()
 
         if (counter == 3)
         {
-            PCDReader parser2("../sample/pointcloud2.pcd");
+            PCDReader parser2("../../sample/pointcloud2.pcd");
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;
@@ -105,7 +105,7 @@ int main()
         }
         else if (counter == 2)
         {
-            PCDReader parser2("../sample/pointcloud3.pcd");
+            PCDReader parser2("../../sample/pointcloud3.pcd");
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;
@@ -115,7 +115,7 @@ int main()
         }
         else if (counter == 1)
         {
-            PCDReader parser2("../sample/pointcloud4.pcd");
+            PCDReader parser2("../../sample/pointcloud4.pcd");
             Buffer _temp_buff;
             _temp_buff = parser2.get_data();
             buff += _temp_buff;
