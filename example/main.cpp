@@ -129,7 +129,11 @@ int main()
 
         // glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
 
-        glDrawArrays(GL_POINTS, 0, data.num_points);
+        // glDrawArrays(GL_POINTS, 0, data.num_points);
+
+        glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
+
+        glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
 
         glfwSwapBuffers(window);
         // Take care of all GLFW events
