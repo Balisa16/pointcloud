@@ -161,9 +161,10 @@ struct Buffer
 {
 public:
     GLfloat *data;
-    Buffer() : data(new GLfloat[data_start + data_limit * 6]),
-               _size(0)
+    Buffer()
     {
+        data = new GLfloat[data_start + data_limit * 6];
+        _size = 0;
         for (int i = 0; i < data_start; i++)
             data[i] = camera_frame_lines[i];
     }

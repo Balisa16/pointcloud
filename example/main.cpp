@@ -30,121 +30,9 @@
 #include <reader.hpp>
 #include <vao.h>
 #include <ebo.h>
-
-#include <future>
-#include <boost/filesystem.hpp>
-// Function to read the contents of a file and return it as a string
+#include <filehandler.hpp>
 
 int width = 800, height = 800;
-
-class FileHandler
-{
-public:
-    static FileHandler &get_instance()
-    {
-        static FileHandler instance;
-        return instance;
-    }
-
-    static bool read(std::string foldername)
-    {
-        return get_instance().Iread(foldername);
-    }
-
-    static void sync()
-    {
-        get_instance().Isync();
-    }
-
-private:
-    bool is_run_task = false;
-    std::future<int> task_result;
-    std::string folder_name = "";
-    std::vector<std::string> file_list;
-
-    bool Iread(std::string foldername)
-    {
-        if (!boost::filesystem::exists(foldername))
-        {
-            std::cout << "File doesn't exist.\n";
-            return false;
-        }
-
-        for (boost::filesystem::directory_iterator it(foldername); it != boost::filesystem::directory_iterator(); ++it)
-            if (boost::filesystem::is_regular_file(it->status()) && it->path().extension() == ".pcd")
-                file_list.push_back(it->path().string());
-
-        std::cout << "Found " << file_list.size() << " pcd files" << std::endl;
-
-        folder_name = foldername;
-    }
-
-    void Isync()
-    {
-        if (folder_name == "" || std::empty(folder_name))
-        {
-            std::cout << "Please set the folder name first" << std::endl;
-            return;
-        }
-
-        if (!is_run_task && file_list.size())
-        {
-            std::string file_name = file_list.front();
-
-            // Remove the first element
-            file_list.erase(file_list.begin());
-            task_result = load_file_async(file_name);
-            is_run_task = true;
-        }
-
-        if (task_result.valid() && task_result.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        {
-            int res = task_result.get();
-            std::cout << "Async task is Ready : " << res << std::endl;
-            is_run_task = false;
-        }
-    }
-
-    std::future<int> load_file_async(std::string filename)
-    {
-        return std::async(std::launch::async, [filename]()
-                          {
-                            std::cout << "Load : " << filename << std::flush;
-                            // for(int i = 0; i < 50; i++)
-                            // {
-                            //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                            // }
-                            PCDReader parser(filename);
-                            PCDFormat data = parser.get_data();
-
-                            std::cout << " [OK]" << std::endl;
-                            return 0; });
-    }
-
-    FileHandler(const FileHandler &) = delete;
-    FileHandler(FileHandler &&) = delete;
-    FileHandler &operator=(const FileHandler &) = delete;
-    FileHandler &operator=(FileHandler &&) = delete;
-
-    FileHandler() = default;
-    ~FileHandler() = default;
-};
-
-// std::future<int> load_file_async(std::string filename)
-// {
-//     return std::async(std::launch::async, [filename]()
-//                       {
-//                         std::cout << "Load : " << filename << std::flush;
-//                         // for(int i = 0; i < 50; i++)
-//                         // {
-//                         //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//                         // }
-//                         PCDReader parser(filename);
-//                         PCDFormat data = parser.get_data();
-
-//                         std::cout << " [OK]" << std::endl;
-//                         return 0; });
-// }
 
 int main()
 {
@@ -267,6 +155,12 @@ int main()
         glBindVertexArray(vao);
 
         FileHandler::sync();
+
+        if (FileHandler::is_new_data())
+        {
+            Buffer _new_data;
+            FileHandler::get_data(_new_data);
+        }
 
         // glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
 
