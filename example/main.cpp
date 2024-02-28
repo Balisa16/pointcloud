@@ -154,24 +154,20 @@ int main()
             FileHandler::get_camera_frame(cam_frame);
 
             buff += _new_data;
+
+            // Bind Pointcloud
             glBindBuffer(GL_ARRAY_BUFFER, pointCloudVBO);
-            glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+            // Bind Camera Frame
             glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
             glBufferData(GL_ARRAY_BUFFER, cam_frame.size() * cam_frame.unit() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            std::cout << "Size : " << cam_frame.size() << '\n';
-
-            // for (int i = 0; i < cam_frame.size() * cam_frame.unit(); i++)
-            //     std::cout << i << ": " << cam_frame.data[i] << '\n';
         }
 
         glBindVertexArray(pointCloudVAO);
-
-        // glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
-        glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
+        glDrawArrays(GL_POINTS, 0, buff.size());
         glBindVertexArray(0);
 
         // Bind Camera Frame
