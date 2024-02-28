@@ -1,4 +1,4 @@
-#include <vao.h>
+#include <vao.hpp>
 
 // Constructor that generates a VAO ID
 VAO::VAO()

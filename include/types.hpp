@@ -161,12 +161,18 @@ struct Buffer
 {
 public:
     GLfloat *data;
+    GLfloat *camera_frame;
     Buffer()
     {
-        data = new GLfloat[data_start + data_limit * 6];
+        data = new GLfloat[data_limit * 6];
         _size = 0;
-        for (int i = 0; i < data_start; i++)
-            data[i] = camera_frame_lines[i];
+
+        camera_frame = new GLfloat[camera_frame_limit * camera_unit];
+
+        // Save initial camera pos
+        camera_frame_size = 1;
+        for (int i = 0; i < camera_unit; i++)
+            camera_frame[i] = camera_frame_lines[i];
     }
 
     virtual ~Buffer()
@@ -178,16 +184,17 @@ public:
     void operator=(PCDFormat &new_data)
     {
         clear();
-        uint64_t __cnt = data_start_6;
 
-        _size = new_data.num_points + data_start_6;
+        uint64_t __cnt = 0;
+
+        _size = new_data.num_points;
         if (_size > data_limit)
             _size = data_limit;
 
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
             if (__cnt >= data_limit)
-                __cnt = data_start_6;
+                __cnt = 0;
             data[__cnt * 6] = new_data.gl_data[i * 6];
             data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
             data[__cnt * 6 + 2] = new_data.gl_data[i * 6 + 2];
@@ -201,16 +208,30 @@ public:
     void operator=(Buffer &new_data)
     {
         clear();
-        uint64_t __cnt = data_start_6;
 
-        _size = new_data.size() + data_start_6;
+        // Copying frame
+        if (new_data.get_frame_size() > 1)
+        {
+            int _frame_cnt = camera_frame_size;
+            camera_frame_size += new_data.get_frame_size() - 1;
+            for (int i = 1; i < new_data.get_frame_size(); i++)
+            {
+                for (size_t j = 0; j < camera_unit; j++)
+                    camera_frame[_frame_cnt * camera_unit + j] = new_data.camera_frame[i * camera_unit + j];
+                _frame_cnt = 1;
+            }
+        }
+
+        uint64_t __cnt = 0;
+
+        _size = new_data.size();
         if (_size > data_limit)
             _size = data_limit;
 
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
             if (__cnt >= data_limit)
-                __cnt = data_start_6;
+                __cnt = 0;
 
             data[__cnt * 6] = new_data.data[i * 6];
             data[__cnt * 6 + 1] = new_data.data[i * 6 + 1];
@@ -224,7 +245,7 @@ public:
 
     void operator+=(PCDFormat &new_data)
     {
-        uint64_t __cnt = _size + data_start_6;
+        uint64_t __cnt = _size;
 
         _size += new_data.num_points;
         if (_size > data_limit)
@@ -233,7 +254,7 @@ public:
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
             if (__cnt >= data_limit)
-                __cnt = data_start_6;
+                __cnt = 0;
 
             data[__cnt * 6] = new_data.gl_data[i * 6];
             data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
@@ -247,7 +268,7 @@ public:
 
     void operator+=(Buffer &new_data)
     {
-        uint64_t __cnt = _size + data_start_6;
+        uint64_t __cnt = _size;
 
         _size += new_data.size();
         if (_size > data_limit)
@@ -256,7 +277,7 @@ public:
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
             if (__cnt >= data_limit)
-                __cnt = data_start_6;
+                __cnt = 0;
 
             data[__cnt * 6] = new_data.data[i * 6];
             data[__cnt * 6 + 1] = new_data.data[i * 6 + 1];
@@ -270,7 +291,7 @@ public:
 
     Buffer operator+(const Buffer &buffer)
     {
-        uint64_t __cnt = _size + data_start_6;
+        uint64_t __cnt = _size;
 
         _size += buffer._size;
         if (_size > data_limit)
@@ -279,7 +300,7 @@ public:
         for (uint64_t i = 0; i < buffer._size; ++i)
         {
             if (__cnt >= data_limit)
-                __cnt = data_start_6;
+                __cnt = 0;
 
             data[__cnt * 6] = buffer.data[i * 6];
             data[__cnt * 6 + 1] = buffer.data[i * 6 + 1];
@@ -296,12 +317,16 @@ public:
     void clear()
     {
         delete data;
+        delete camera_frame;
 
-        data = new GLfloat[data_start + data_limit * 6];
-
-        for (int i = 0; i < data_start; i++)
-            data[i] = camera_frame_lines[i];
         _size = 0;
+        data = new GLfloat[data_limit * 6];
+
+        camera_frame = new GLfloat[camera_frame_limit * camera_unit];
+
+        camera_frame_size = 1;
+        for (int i = 0; i < camera_unit; i++)
+            camera_frame[i] = camera_frame_lines[i];
     }
 
     uint64_t size() const
@@ -320,22 +345,23 @@ public:
         return data;
     }
 
+    int get_frame_size()
+    {
+        return camera_frame_size;
+    }
+
     uint64_t limit() const
     {
         return data_limit;
     }
 
-    uint32_t start() const
-    {
-        return data_start;
-    }
-
 private:
     uint64_t data_limit = 100000000;
+    int camera_frame_limit = 1000;
     uint64_t _size;
+    int camera_frame_size;
 
-    const uint32_t data_start = 96;
-    const uint32_t data_start_6 = 96 / 6;
+    const int camera_unit = 96;
 
     const GLfloat camera_frame_lines[96] = {
         0.f, 0.f, .0f, 1.f, .0f, .0f, .15f, .15f, .20f, 1.f, .0f, .0f,

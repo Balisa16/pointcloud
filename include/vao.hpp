@@ -2,7 +2,7 @@
 #define VAO_CLASS_H
 
 #include <glad.h>
-#include <vbo.h>
+#include <vbo.hpp>
 
 class VAO
 {
