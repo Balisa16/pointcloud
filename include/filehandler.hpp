@@ -38,12 +38,19 @@ public:
         get_instance().new_data = false;
     }
 
+    static void get_camera_frame(CameraFrame &cam_frame)
+    {
+        cam_frame.copy(get_instance().camera_frame);
+    }
+
 private:
     bool is_run_task = false, new_data = false;
     std::future<int> task_result;
     std::string folder_name = "";
     std::vector<std::string> file_list;
     Buffer _temp_buff;
+
+    CameraFrame camera_frame;
 
     bool Iread(std::string foldername)
     {
@@ -69,7 +76,17 @@ private:
         PCDReader parser(filename);
 
         new_data = true;
-        _temp_buff = parser.get_data();
+        PCDFormat _pcd_format = parser.get_data();
+        _temp_buff = _pcd_format;
+
+        camera_frame.add(
+            {_pcd_format.view_point.x,
+             _pcd_format.view_point.y,
+             _pcd_format.view_point.z},
+            {_pcd_format.view_point.qw,
+             _pcd_format.view_point.qx,
+             _pcd_format.view_point.qy,
+             _pcd_format.view_point.qz});
 
         std::cout << " [OK]" << std::endl;
         return 0;

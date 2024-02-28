@@ -36,6 +36,7 @@ int main()
 {
     PCDReader parser("../../sample/pointcloud1.pcd");
     Buffer buff;
+    CameraFrame cam_frame;
     // parser += "../../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
     buff = data;
@@ -46,16 +47,6 @@ int main()
     GLFWwindow *window = win.get_window();
 
     Shader shader("../../script/pc.vert", "../../script/pc.frag");
-
-    GLfloat line_data[96] = {
-        0.f, 0.f, .0f, 1.f, .0f, .0f, .15f, .15f, .20f, 1.f, .0f, .0f,
-        0.f, 0.f, .0f, 1.f, .0f, .0f, .15f, -.15f, .20f, 1.f, .0f, .0f,
-        0.f, 0.f, .0f, 1.f, .0f, .0f, -.15f, .15f, .20, 1.f, .0f, .0f,
-        0.f, 0.f, .0f, 1.f, .0f, .0f, -.15f, -.15f, .20f, 1.f, .0f, .0f,
-        -.15f, -.15f, .20f, 1.f, .0f, .0f, .15f, -.15f, .20f, 1.f, .0f, .0f,
-        .15f, -.15f, .20f, 1.f, .0f, .0f, .15f, .15f, .20f, 1.f, .0f, .0f,
-        .15f, .15f, .20f, 1.f, .0f, .0f, -.15f, .15f, .20, 1.f, .0f, .0f,
-        -.15f, .15f, .20, 1.f, .0f, .0f, -.15f, -.15f, .20f, 1.f, .0f, .0f};
 
     GLuint pointCloudVBO, lineVBO;
     GLuint pointCloudVAO, lineVAO;
@@ -88,11 +79,13 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
 
     // Allocate memory for the buffer, and set the data (replace nullptr with your actual line data)
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * 96, line_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, cam_frame.size() * 6 * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
 
     // Set the vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
 
     // Unbind VAO and VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -153,18 +146,29 @@ int main()
         FileHandler::sync();
 
         // Bind Pointcloud
-        glBindVertexArray(pointCloudVAO);
-        =
-            if (FileHandler::is_new_data())
+
+        if (FileHandler::is_new_data())
         {
             Buffer _new_data;
             FileHandler::get_data(_new_data);
+            FileHandler::get_camera_frame(cam_frame);
 
             buff += _new_data;
             glBindBuffer(GL_ARRAY_BUFFER, pointCloudVBO);
             glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+            glBufferData(GL_ARRAY_BUFFER, cam_frame.size() * cam_frame.unit() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            std::cout << "Size : " << cam_frame.size() << '\n';
+
+            // for (int i = 0; i < cam_frame.size() * cam_frame.unit(); i++)
+            //     std::cout << i << ": " << cam_frame.data[i] << '\n';
         }
+
+        glBindVertexArray(pointCloudVAO);
 
         // glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
         glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
@@ -172,7 +176,7 @@ int main()
 
         // Bind Camera Frame
         glBindVertexArray(lineVAO);
-        glDrawArrays(GL_LINES, 0, numPoints);
+        glDrawArrays(GL_LINES, 0, cam_frame.size() * cam_frame.unit() / 6);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);
