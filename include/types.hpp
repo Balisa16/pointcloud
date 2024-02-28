@@ -179,9 +179,15 @@ public:
     {
         clear();
         uint64_t __cnt = data_start_6;
+
+        _size = new_data.num_points + data_start_6;
+        if (_size > data_limit)
+            _size = data_limit;
+
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
-            buff_check(_size, __cnt);
+            if (__cnt >= data_limit)
+                __cnt = data_start_6;
             data[__cnt * 6] = new_data.gl_data[i * 6];
             data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
             data[__cnt * 6 + 2] = new_data.gl_data[i * 6 + 2];
@@ -190,17 +196,21 @@ public:
             data[__cnt * 6 + 5] = new_data.gl_data[i * 6 + 5];
             __cnt++;
         }
-        if (__cnt - data_start_6 < data_limit)
-            _size = __cnt - data_start_6 - 1;
     }
 
     void operator=(Buffer &new_data)
     {
         clear();
         uint64_t __cnt = data_start_6;
+
+        _size = new_data.size() + data_start_6;
+        if (_size > data_limit)
+            _size = data_limit;
+
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
-            buff_check(_size, __cnt);
+            if (__cnt >= data_limit)
+                __cnt = data_start_6;
 
             data[__cnt * 6] = new_data.data[i * 6];
             data[__cnt * 6 + 1] = new_data.data[i * 6 + 1];
@@ -210,72 +220,77 @@ public:
             data[__cnt * 6 + 5] = new_data.data[i * 6 + 5];
             __cnt++;
         }
-
-        if (__cnt - data_start_6 < data_limit)
-            _size = __cnt - data_start_6 - 1;
     }
 
     void operator+=(PCDFormat &new_data)
     {
         uint64_t __cnt = _size + data_start_6;
+
+        _size += new_data.num_points;
+        if (_size > data_limit)
+            _size = data_limit;
+
         for (uint64_t i = 0; i < new_data.num_points; ++i)
         {
+            if (__cnt >= data_limit)
+                __cnt = data_start_6;
 
-            buff_check(_size, __cnt);
-            data[(__cnt + i) * 6] = new_data.gl_data[i * 6];
-            data[(__cnt + i) * 6 + 1] = new_data.gl_data[i * 6 + 1];
-            data[(__cnt + i) * 6 + 2] = new_data.gl_data[i * 6 + 2];
-            data[(__cnt + i) * 6 + 3] = new_data.gl_data[i * 6 + 3];
-            data[(__cnt + i) * 6 + 4] = new_data.gl_data[i * 6 + 4];
-            data[(__cnt + i) * 6 + 5] = new_data.gl_data[i * 6 + 5];
+            data[__cnt * 6] = new_data.gl_data[i * 6];
+            data[__cnt * 6 + 1] = new_data.gl_data[i * 6 + 1];
+            data[__cnt * 6 + 2] = new_data.gl_data[i * 6 + 2];
+            data[__cnt * 6 + 3] = new_data.gl_data[i * 6 + 3];
+            data[__cnt * 6 + 4] = new_data.gl_data[i * 6 + 4];
+            data[__cnt * 6 + 5] = new_data.gl_data[i * 6 + 5];
             __cnt++;
         }
-        if (__cnt - data_start_6 < data_limit)
-            _size = __cnt - data_start_6 - 1;
     }
 
     void operator+=(Buffer &new_data)
     {
         uint64_t __cnt = _size + data_start_6;
+
+        _size += new_data.size();
+        if (_size > data_limit)
+            _size = data_limit;
+
         for (uint64_t i = 0; i < new_data.size(); ++i)
         {
+            if (__cnt >= data_limit)
+                __cnt = data_start_6;
 
-            buff_check(_size, __cnt);
-            data[(__cnt + i) * 6] = new_data.data[i * 6];
-            data[(__cnt + i) * 6 + 1] = new_data.data[i * 6 + 1];
-            data[(__cnt + i) * 6 + 2] = new_data.data[i * 6 + 2];
-            data[(__cnt + i) * 6 + 3] = new_data.data[i * 6 + 3];
-            data[(__cnt + i) * 6 + 4] = new_data.data[i * 6 + 4];
-            data[(__cnt + i) * 6 + 5] = new_data.data[i * 6 + 5];
+            data[__cnt * 6] = new_data.data[i * 6];
+            data[__cnt * 6 + 1] = new_data.data[i * 6 + 1];
+            data[__cnt * 6 + 2] = new_data.data[i * 6 + 2];
+            data[__cnt * 6 + 3] = new_data.data[i * 6 + 3];
+            data[__cnt * 6 + 4] = new_data.data[i * 6 + 4];
+            data[__cnt * 6 + 5] = new_data.data[i * 6 + 5];
             __cnt++;
         }
-        if (__cnt - data_start_6 < data_limit)
-            _size = __cnt - data_start_6 - 1;
     }
 
     Buffer operator+(const Buffer &buffer)
     {
-        Buffer result;
-        result = *this;
+        uint64_t __cnt = _size + data_start_6;
 
-        // Copy data from the second buffer
-        uint64_t __cnt = result._size + data_start_6;
+        _size += buffer._size;
+        if (_size > data_limit)
+            _size = data_limit;
+
         for (uint64_t i = 0; i < buffer._size; ++i)
         {
-            buff_check(_size, __cnt);
-            result.data[(__cnt + i) * 6] = buffer.data[i * 6];
-            result.data[(__cnt + i) * 6 + 1] = buffer.data[i * 6 + 1];
-            result.data[(__cnt + i) * 6 + 2] = buffer.data[i * 6 + 2];
-            result.data[(__cnt + i) * 6 + 3] = buffer.data[i * 6 + 3];
-            result.data[(__cnt + i) * 6 + 4] = buffer.data[i * 6 + 4];
-            result.data[(__cnt + i) * 6 + 5] = buffer.data[i * 6 + 5];
+            if (__cnt >= data_limit)
+                __cnt = data_start_6;
+
+            data[__cnt * 6] = buffer.data[i * 6];
+            data[__cnt * 6 + 1] = buffer.data[i * 6 + 1];
+            data[__cnt * 6 + 2] = buffer.data[i * 6 + 2];
+            data[__cnt * 6 + 3] = buffer.data[i * 6 + 3];
+            data[__cnt * 6 + 4] = buffer.data[i * 6 + 4];
+            data[__cnt * 6 + 5] = buffer.data[i * 6 + 5];
             __cnt++;
         }
 
-        if (__cnt - data_start_6 < data_limit)
-            result._size = __cnt - data_start_6 - 1;
-
-        return result;
+        return *this;
     }
 
     void clear()
@@ -284,7 +299,6 @@ public:
 
         data = new GLfloat[data_start + data_limit * 6];
 
-        // Fill camera frame lines
         for (int i = 0; i < data_start; i++)
             data[i] = camera_frame_lines[i];
         _size = 0;
@@ -317,21 +331,11 @@ public:
     }
 
 private:
-    uint64_t data_limit = 10000000;
+    uint64_t data_limit = 100000000;
     uint64_t _size;
 
     const uint32_t data_start = 96;
     const uint32_t data_start_6 = 96 / 6;
-
-    void buff_check(uint64_t &size, uint64_t &counter)
-    {
-        if (counter + data_start_6 >= data_limit)
-        {
-            size = data_limit;
-            std::cout << "Memory overflow\n";
-            counter = 0;
-        }
-    }
 
     const GLfloat camera_frame_lines[96] = {
         0.f, 0.f, .0f, 1.f, .0f, .0f, .15f, .15f, .20f, 1.f, .0f, .0f,

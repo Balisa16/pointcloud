@@ -38,7 +38,7 @@ int main()
 {
     PCDReader parser("../../sample/pointcloud1.pcd");
     Buffer buff;
-    parser += "../../sample/pointcloud3.pcd";
+    // parser += "../../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
     buff = data;
 
@@ -101,77 +101,28 @@ int main()
 
         Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
 
-        // if (counter == 3)
-        // {
-        //     result_task = load_file_async("../../sample/pointcloud2.pcd");
-        //     // Buffer _temp_buff;
-        //     // _temp_buff = parser2.get_data();
-        //     // buff += _temp_buff;
-        //     // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     // glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-        //     // glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
-        // else if (counter == 2)
-        // {
-        //     PCDReader parser3("../../sample/pointcloud3.pcd");
-        //     // Buffer _temp_buff;
-        //     // _temp_buff = parser3.get_data();
-        //     // buff += _temp_buff;
-        //     // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     // glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-        //     // glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
-        // else if (counter == 1)
-        // {
-        //     PCDReader parser4("../../sample/pointcloud4.pcd");
-        //     // Buffer _temp_buff;
-        //     // _temp_buff = parser4.get_data();
-        //     // buff += _temp_buff;
-        //     // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        //     // glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
-        //     // glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // }
-
-        // if (!is_run_task && counter)
-        // {
-        //     std::cout << "Run Task : " << counter << std::endl;
-        //     result_task = load_file_async("../../sample/pointcloud" + std::to_string(counter) + ".pcd");
-        //     is_run_task = true;
-        //     counter--;
-        // }
-
-        // if (result_task.valid() && result_task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        // {
-        //     int res = result_task.get();
-        //     std::cout << "Async task is Ready : " << res << std::endl;
-        //     is_run_task = false;
-        // }
-
-        // if(result_task.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        // {
-        //     std::cout << "Async task is Ready" << std::endl;
-        // }
-
         glBindVertexArray(vao);
 
         FileHandler::sync();
 
+        // Check if new data is available
         if (FileHandler::is_new_data())
         {
             Buffer _new_data;
             FileHandler::get_data(_new_data);
+
+            buff += _new_data;
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, (buff.size() * 6 + buff.start()) * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
-
-        // glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
-
-        // glDrawArrays(GL_POINTS, 0, data.num_points);
 
         glDrawArrays(GL_LINES, 0, int(buff.start() / 6));
 
         glDrawArrays(GL_POINTS, buff.start() / 6 - 1, buff.size());
 
         glfwSwapBuffers(window);
-        // Take care of all GLFW events
+
         glfwPollEvents();
     }
     shader.Delete();
