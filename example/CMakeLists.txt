@@ -7,6 +7,8 @@ target_include_directories(test1 PRIVATE
 
 target_link_libraries(test1 PRIVATE
     glfw
+    Boost::system
+    Boost::filesystem
     ${PCL_COMMON_LIBRARIES}
     ${PCL_IO_LIBRARIES}
     ${PROJECT_NAME})

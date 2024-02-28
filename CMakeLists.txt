@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(PCL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 find_package(Threads REQUIRED)
 
 add_subdirectory(thirdparty/glfw)
@@ -33,6 +33,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
+    Boost::system
+    Boost::filesystem
     ${PCL_COMMON_LIBRARIES}
     ${PCL_IO_LIBRARIES}
     Threads::Threads)
