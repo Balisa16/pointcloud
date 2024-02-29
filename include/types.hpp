@@ -124,7 +124,6 @@ public:
 
     int size() const { return _size; }
     CameraFrame() : data(new GLfloat[maks_size * data_unit]), _size(0) {}
-    virtual ~CameraFrame() { delete[] data; };
 };
 
 struct PCDFormat
