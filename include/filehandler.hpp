@@ -54,26 +54,60 @@ private:
 
     bool Iread(std::string foldername)
     {
+        auto collect_file = [&]()
+        {
+            for (boost::filesystem::directory_iterator it(folder_name); it != boost::filesystem::directory_iterator(); ++it)
+                if (boost::filesystem::is_regular_file(it->status()) && it->path().extension() == ".pcd")
+                    file_list.push_back(it->path().filename().string());
+            std::cout << "Found " << file_list.size() << " pcd files" << std::endl;
+        };
+
         if (!boost::filesystem::exists(foldername))
         {
+            std::string start_path = foldername;
+
+            // Try parent folder
+            for (size_t i = 0; i < 2; i++)
+            {
+                start_path = "../" + start_path;
+                std::cout << "Check : " << start_path;
+                if (boost::filesystem::exists(start_path))
+                {
+                    std::cout << " [Valid]\n";
+                    folder_name = start_path;
+                    collect_file();
+                    return true;
+                }
+                std::cout << " [Invalid]\n";
+            }
+
+            // Try current child folder
+            boost::filesystem::path current_path = boost::filesystem::current_path();
+            for (const auto &entry : boost::filesystem::directory_iterator(current_path))
+                if (boost::filesystem::is_directory(entry.path()))
+                {
+                    if (boost::filesystem::is_directory(std::string(entry.path().string() + "/" + foldername)))
+                    {
+                        folder_name = entry.path().string() + "/" + foldername;
+                        std::cout << "Used : " << folder_name << std::endl;
+                        collect_file();
+                        return true;
+                    }
+                }
+
             std::cout << "File doesn't exist.\n";
             return false;
         }
 
-        for (boost::filesystem::directory_iterator it(foldername); it != boost::filesystem::directory_iterator(); ++it)
-            if (boost::filesystem::is_regular_file(it->status()) && it->path().extension() == ".pcd")
-                file_list.push_back(it->path().string());
-
-        std::cout << "Found " << file_list.size() << " pcd files" << std::endl;
-
         folder_name = foldername;
+        collect_file();
         return true;
     }
 
     int load_file(std::string filename)
     {
         std::cout << "Load : " << filename << std::flush;
-        PCDReader parser(filename);
+        PCDReader parser(folder_name + '/' + filename);
 
         new_data = true;
         PCDFormat _pcd_format = parser.get_data();
@@ -106,10 +140,10 @@ private:
 
         if (!is_run_task && file_list.size())
         {
-            std::string file_name = file_list.front();
+            std::string file_name = file_list.back();
 
             // Remove the first element
-            file_list.erase(file_list.begin());
+            file_list.erase(file_list.end());
             task_result = std::async(std::launch::async, &FileHandler::load_file, this, file_name);
             is_run_task = true;
         }

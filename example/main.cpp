@@ -34,14 +34,10 @@ int width = 800, height = 800;
 
 int main()
 {
-    PCDReader parser("../../sample/pointcloud1.pcd");
     Pointcloud buff;
     CameraFrame cam_frame;
-    // parser += "../../sample/pointcloud3.pcd";
-    PCDFormat data = parser.get_data();
-    buff = data;
 
-    Window win("Point Cloud", width, height);
+    Window win("Pointcloud", width, height);
     GLFWwindow *window = win.get_window();
 
     Shader shader("../../script/pc.vert", "../../script/pc.frag");
@@ -50,7 +46,7 @@ int main()
     VAO pc_vao;
     pc_vao.bind();
 
-    VBO pc_vbo(data.gl_data, data.num_points * 6 * sizeof(GLfloat));
+    VBO pc_vbo(buff.data, buff.size() * 6 * sizeof(GLfloat));
     pc_vbo.set_vertices(0, 1, 3, 3);
     pc_vbo.unbind();
     pc_vao.unbind();
@@ -68,7 +64,7 @@ int main()
 
     Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
 
-    FileHandler::read("../../sample");
+    FileHandler::read("sample");
 
     while (!glfwWindowShouldClose(window))
     {
