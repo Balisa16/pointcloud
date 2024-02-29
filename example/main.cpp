@@ -41,8 +41,6 @@ int main()
     PCDFormat data = parser.get_data();
     buff = data;
 
-    // PCDFormat data = parser.get_data();
-
     Window win("Point Cloud", width, height);
     GLFWwindow *window = win.get_window();
 
@@ -61,7 +59,7 @@ int main()
     VAO frame_vao;
     frame_vao.bind();
 
-    VBO frame_vbo(cam_frame.data, cam_frame.size() * 6 * sizeof(GLfloat));
+    VBO frame_vbo(cam_frame.data, cam_frame.array_len() * sizeof(GLfloat));
     frame_vbo.set_vertices(0, 1, 3, 3);
     frame_vbo.unbind();
     frame_vao.unbind();
@@ -101,7 +99,7 @@ int main()
 
             // Bind Camera Frame
             glBindBuffer(GL_ARRAY_BUFFER, frame_vbo.get_id());
-            glBufferData(GL_ARRAY_BUFFER, cam_frame.size() * cam_frame.unit() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, cam_frame.array_len() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
@@ -110,7 +108,7 @@ int main()
         glBindVertexArray(0);
 
         glBindVertexArray(frame_vbo.get_id());
-        glDrawArrays(GL_LINES, 0, cam_frame.size() * cam_frame.unit() / 6);
+        glDrawArrays(GL_LINES, 0, cam_frame.array_len() / 6);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);

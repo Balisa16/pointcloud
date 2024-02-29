@@ -33,6 +33,7 @@ struct CameraFrame
 {
 private:
     const int data_unit = 108;
+    const uint32_t initial_frame = 96;
     int maks_size = 1000;
     uint64_t _size;
     glm::vec3 last_position = {.0f, .0f, .0f};
@@ -48,6 +49,11 @@ private:
 
 public:
     GLfloat *data;
+
+    uint64_t array_len()
+    {
+        return _size * data_unit + initial_frame;
+    }
 
     void copy(CameraFrame &other)
     {
@@ -65,18 +71,21 @@ public:
             return;
         }
 
-        // Draw line from previous position to new position
-        data[_size * data_unit] = last_position.x;
-        data[_size * data_unit + 1] = last_position.y;
-        data[_size * data_unit + 2] = last_position.z;
-        data[_size * data_unit + 3] = 1.f; // red line
+        int start_loc = _size * data_unit + initial_frame;
 
-        data[_size * data_unit + 6] = new_pos.x;
-        data[_size * data_unit + 7] = new_pos.y;
-        data[_size * data_unit + 8] = new_pos.z;
-        data[_size * data_unit + 9] = 1.f;
+        // Draw line from previous position to new position
+        data[start_loc] = last_position.x;
+        data[start_loc + 1] = last_position.y;
+        data[start_loc + 2] = last_position.z;
+        data[start_loc + 3] = 1.f; // red line
+
+        data[start_loc + 6] = new_pos.x;
+        data[start_loc + 7] = new_pos.y;
+        data[start_loc + 8] = new_pos.z;
+        data[start_loc + 9] = 1.f;
 
         glm::vec3 transf_point;
+        int __cam_loc;
         for (size_t i = 0; i < 16; i++)
         {
             transf_point = Calculate::transform(
@@ -86,10 +95,11 @@ public:
                     start_frame[i * 3 + 2]),
                 new_pos,
                 orientation);
-            data[_size * data_unit + (i + 2) * 6] = transf_point.x;
-            data[_size * data_unit + (i + 2) * 6 + 1] = transf_point.y;
-            data[_size * data_unit + (i + 2) * 6 + 2] = transf_point.z;
-            data[_size * data_unit + (i + 2) * 6 + 3] = 1.f;
+            __cam_loc = start_loc + (i + 2) * 6;
+            data[__cam_loc] = transf_point.x;
+            data[__cam_loc + 1] = transf_point.y;
+            data[__cam_loc + 2] = transf_point.z;
+            data[__cam_loc + 3] = 1.f;
         }
         _size++;
         last_position = new_pos;
@@ -109,10 +119,10 @@ public:
         }
 
         maks_size = new_size;
-        GLfloat *_temp_data = new GLfloat[maks_size * data_unit];
-        for (int i = 0; i < _size * data_unit; i++)
+        GLfloat *_temp_data = new GLfloat[maks_size * data_unit + initial_frame];
+        for (int i = 0; i < _size * data_unit + initial_frame; i++)
             _temp_data[i] = data[i];
-        delete[] data;
+        delete data;
         data = _temp_data;
         return true;
     }
@@ -123,7 +133,18 @@ public:
     }
 
     int size() const { return _size; }
-    CameraFrame() : data(new GLfloat[maks_size * data_unit]), _size(0) {}
+    CameraFrame() : data(new GLfloat[maks_size * data_unit + initial_frame]), _size(0)
+    {
+        for (size_t i = 0; i < 16; i++)
+        {
+            data[i * 6] = start_frame[i * 3];
+            data[i * 6 + 1] = start_frame[i * 3 + 1];
+            data[i * 6 + 2] = start_frame[i * 3 + 2];
+            data[i * 6 + 3] = .0f;
+            data[i * 6 + 4] = 1.f;
+            data[i * 6 + 5] = .0f;
+        }
+    }
 };
 
 struct PCDFormat
