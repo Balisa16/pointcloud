@@ -32,7 +32,7 @@ public:
         return get_instance().new_data;
     }
 
-    static void get_data(Buffer &data)
+    static void get_data(Pointcloud &data)
     {
         data = get_instance()._temp_buff;
         get_instance().new_data = false;
@@ -48,7 +48,7 @@ private:
     std::future<int> task_result;
     std::string folder_name = "";
     std::vector<std::string> file_list;
-    Buffer _temp_buff;
+    Pointcloud _temp_buff;
 
     CameraFrame camera_frame;
 

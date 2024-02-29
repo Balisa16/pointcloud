@@ -124,7 +124,7 @@ public:
 
     int size() const { return _size; }
     CameraFrame() : data(new GLfloat[maks_size * data_unit]), _size(0) {}
-    virtual ~CameraFrame() = default;
+    virtual ~CameraFrame() { delete[] data; };
 };
 
 struct PCDFormat
@@ -167,17 +167,17 @@ struct PCDFormat
     }
 };
 
-struct Buffer
+struct Pointcloud
 {
 public:
     GLfloat *data;
-    Buffer()
+    Pointcloud()
     {
         data = new GLfloat[data_limit * 6];
         _size = 0;
     }
 
-    virtual ~Buffer()
+    virtual ~Pointcloud()
     {
         if (data != nullptr)
             delete data;
@@ -206,7 +206,7 @@ public:
         }
     }
 
-    void operator=(Buffer &new_data)
+    void operator=(Pointcloud &new_data)
     {
         clear();
         uint64_t __cnt = 0;
@@ -253,7 +253,7 @@ public:
         }
     }
 
-    void operator+=(Buffer &new_data)
+    void operator+=(Pointcloud &new_data)
     {
         uint64_t __cnt = _size;
 
@@ -276,25 +276,25 @@ public:
         }
     }
 
-    Buffer operator+(const Buffer &buffer)
+    Pointcloud operator+(const Pointcloud &Pointcloud)
     {
         uint64_t __cnt = _size;
 
-        _size += buffer._size;
+        _size += Pointcloud._size;
         if (_size > data_limit)
             _size = data_limit;
 
-        for (uint64_t i = 0; i < buffer._size; ++i)
+        for (uint64_t i = 0; i < Pointcloud._size; ++i)
         {
             if (__cnt >= data_limit)
                 __cnt = 0;
 
-            data[__cnt * 6] = buffer.data[i * 6];
-            data[__cnt * 6 + 1] = buffer.data[i * 6 + 1];
-            data[__cnt * 6 + 2] = buffer.data[i * 6 + 2];
-            data[__cnt * 6 + 3] = buffer.data[i * 6 + 3];
-            data[__cnt * 6 + 4] = buffer.data[i * 6 + 4];
-            data[__cnt * 6 + 5] = buffer.data[i * 6 + 5];
+            data[__cnt * 6] = Pointcloud.data[i * 6];
+            data[__cnt * 6 + 1] = Pointcloud.data[i * 6 + 1];
+            data[__cnt * 6 + 2] = Pointcloud.data[i * 6 + 2];
+            data[__cnt * 6 + 3] = Pointcloud.data[i * 6 + 3];
+            data[__cnt * 6 + 4] = Pointcloud.data[i * 6 + 4];
+            data[__cnt * 6 + 5] = Pointcloud.data[i * 6 + 5];
             __cnt++;
         }
 

@@ -35,7 +35,7 @@ int width = 800, height = 800;
 int main()
 {
     PCDReader parser("../../sample/pointcloud1.pcd");
-    Buffer buff;
+    Pointcloud buff;
     CameraFrame cam_frame;
     // parser += "../../sample/pointcloud3.pcd";
     PCDFormat data = parser.get_data();
@@ -48,88 +48,27 @@ int main()
 
     Shader shader("../../script/pc.vert", "../../script/pc.frag");
 
-    GLuint pointCloudVBO, lineVBO;
-    GLuint pointCloudVAO, lineVAO;
+    // Pointcloud VAO and VBO
+    VAO pc_vao;
+    pc_vao.bind();
 
-    // Create and bind VAO
-    glGenVertexArrays(1, &pointCloudVAO);
-    glBindVertexArray(pointCloudVAO);
+    VBO pc_vbo(data.gl_data, data.num_points * 6 * sizeof(GLfloat));
+    pc_vbo.set_vertices(0, 1, 3, 3);
+    pc_vbo.unbind();
+    pc_vao.unbind();
 
-    // Create and bind VBO
-    glGenBuffers(1, &pointCloudVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, pointCloudVBO);
+    // Camera Frame VAO and VBO
+    VAO frame_vao;
+    frame_vao.bind();
 
-    // Allocate memory for the buffer, and set the data (replace nullptr with your actual point cloud data)
-    glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    // Unbind VAO and VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    // Create and bind VAO
-    glGenVertexArrays(1, &lineVAO);
-    glBindVertexArray(lineVAO);
-
-    // Create and bind VBO
-    glGenBuffers(1, &lineVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-
-    // Allocate memory for the buffer, and set the data (replace nullptr with your actual line data)
-    glBufferData(GL_ARRAY_BUFFER, cam_frame.size() * 6 * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
-
-    // Set the vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    // Unbind VAO and VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    // GLuint vao, vbo;
-    // glGenVertexArrays(1, &vao);
-    // glBindVertexArray(vao);
-
-    // glGenBuffers(1, &vbo);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    // glBufferData(GL_ARRAY_BUFFER, data.num_points * 6 * sizeof(GLfloat), data.gl_data, GL_STATIC_DRAW);
-
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-    // glEnableVertexAttribArray(1);
-    // glBindVertexArray(0);
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // VAO VAO1;
-    // VAO1.Bind();
-
-    // VBO VBO1(data.gl_data, data.num_points * 6 * sizeof(GLfloat));
-
-    // VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void *)0);
-    // VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void *)(3 * sizeof(float)));
-
-    // VAO1.Unbind();
-    // VBO1.Unbind();
+    VBO frame_vbo(cam_frame.data, cam_frame.size() * 6 * sizeof(GLfloat));
+    frame_vbo.set_vertices(0, 1, 3, 3);
+    frame_vbo.unbind();
+    frame_vao.unbind();
 
     glEnable(GL_DEPTH_TEST);
 
     Camera::init(window, width, height, glm::vec3(0.0f, 0.0f, 0.0f));
-
-    // Main loop
-
-    // int counter = 3;
-
-    // // std::promise<int> promise;
-    // std::future<int> result_task;
-    // bool is_run_task = false;
 
     FileHandler::read("../../sample");
 
@@ -149,29 +88,28 @@ int main()
 
         if (FileHandler::is_new_data())
         {
-            Buffer _new_data;
+            Pointcloud _new_data;
             FileHandler::get_data(_new_data);
             FileHandler::get_camera_frame(cam_frame);
 
             buff += _new_data;
 
             // Bind Pointcloud
-            glBindBuffer(GL_ARRAY_BUFFER, pointCloudVBO);
+            glBindBuffer(GL_ARRAY_BUFFER, pc_vbo.get_id());
             glBufferData(GL_ARRAY_BUFFER, buff.size() * 6 * sizeof(GLfloat), buff.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             // Bind Camera Frame
-            glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+            glBindBuffer(GL_ARRAY_BUFFER, frame_vbo.get_id());
             glBufferData(GL_ARRAY_BUFFER, cam_frame.size() * cam_frame.unit() * sizeof(GLfloat), cam_frame.data, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
-        glBindVertexArray(pointCloudVAO);
+        glBindVertexArray(pc_vao.get_id());
         glDrawArrays(GL_POINTS, 0, buff.size());
         glBindVertexArray(0);
 
-        // Bind Camera Frame
-        glBindVertexArray(lineVAO);
+        glBindVertexArray(frame_vbo.get_id());
         glDrawArrays(GL_LINES, 0, cam_frame.size() * cam_frame.unit() / 6);
         glBindVertexArray(0);
 
@@ -180,13 +118,5 @@ int main()
         glfwPollEvents();
     }
     shader.Delete();
-    // VAO1.Delete();
-    // VBO1.Delete();
-
-    glDeleteVertexArrays(1, &lineVAO);
-    glDeleteVertexArrays(1, &lineVBO);
-
-    glDeleteVertexArrays(1, &pointCloudVAO);
-    glDeleteVertexArrays(1, &pointCloudVBO);
     return 0;
 }
