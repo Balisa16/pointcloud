@@ -40,7 +40,7 @@ int main()
     Window win("Pointcloud", width, height);
     GLFWwindow *window = win.get_window();
 
-    Shader shader("../../script/pc.vert", "../../script/pc.frag");
+    Shader shader("script/pc.vert", "script/pc.frag");
 
     // Pointcloud VAO and VBO
     VAO pc_vao;
@@ -70,11 +70,11 @@ int main()
     {
         win.clear();
 
-        shader.Activate();
+        shader.activate();
 
         Camera::Inputs(window);
 
-        Camera::Matrix(45.0f, 0.1f, 100.0f, shader.ID, "camera_view_mat");
+        Camera::Matrix(45.0f, 0.1f, 100.0f, shader.get_id(), "camera_view_mat");
 
         FileHandler::sync();
 

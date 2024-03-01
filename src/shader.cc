@@ -3,8 +3,45 @@
 // Constructor that build the Shader Program from 2 different shaders
 Shader::Shader(std::string vertex_file, std::string fragment_file)
 {
-    read_content(vertex_code, vertex_file);
-    read_content(fragment_code, fragment_file);
+    std::string initial_vert_path = vertex_file;
+    std::string initial_frag_path = fragment_file;
+    bool found_vert = false, found_frag = false;
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (boost::filesystem::exists(initial_vert_path))
+        {
+            found_vert = true;
+            vertexfile = initial_vert_path;
+            break;
+        }
+        initial_vert_path = "../" + initial_vert_path;
+    }
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (boost::filesystem::exists(initial_frag_path))
+        {
+            found_frag = true;
+            fragmentfile = initial_frag_path;
+            break;
+        }
+        initial_frag_path = "../" + initial_frag_path;
+    }
+
+    if (!found_vert)
+    {
+        std::cout << "Can't find vertex file\n";
+        exit(EXIT_FAILURE);
+    }
+
+    if (!found_frag)
+    {
+        std::cout << "Can't find fragment file\n";
+        exit(EXIT_FAILURE);
+    }
+
+    read_content(vertex_code, vertexfile);
+    read_content(fragment_code, fragmentfile);
 
     const char *vcode = vertex_code.c_str();
     const char *fcode = fragment_code.c_str();
@@ -19,15 +56,20 @@ Shader::Shader(std::string vertex_file, std::string fragment_file)
     glCompileShader(_fragment_shader);
     compileErrors(_fragment_shader, "FRAGMENT");
 
-    ID = glCreateProgram();
-    glAttachShader(ID, _vertex_shader);
-    glAttachShader(ID, _fragment_shader);
-    glLinkProgram(ID);
-    compileErrors(ID, "PROGRAM");
+    _id = glCreateProgram();
+    glAttachShader(_id, _vertex_shader);
+    glAttachShader(_id, _fragment_shader);
+    glLinkProgram(_id);
+    compileErrors(_id, "PROGRAM");
 
     // Delete the now useless Vertex and Fragment Shader objects
     glDeleteShader(_vertex_shader);
     glDeleteShader(_fragment_shader);
+}
+
+GLuint Shader::get_id()
+{
+    return _id;
 }
 
 void Shader::read_content(std::string &target, std::string &file_path)
@@ -39,15 +81,15 @@ void Shader::read_content(std::string &target, std::string &file_path)
 }
 
 // Activates the Shader Program
-void Shader::Activate()
+void Shader::activate()
 {
-    glUseProgram(ID);
+    glUseProgram(_id);
 }
 
 // Deletes the Shader Program
 void Shader::Delete()
 {
-    glDeleteProgram(ID);
+    glDeleteProgram(_id);
 }
 
 // Checks if the different Shaders have compiled properly

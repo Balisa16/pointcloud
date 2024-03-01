@@ -70,15 +70,12 @@ private:
             for (size_t i = 0; i < 2; i++)
             {
                 start_path = "../" + start_path;
-                std::cout << "Check : " << start_path;
                 if (boost::filesystem::exists(start_path))
                 {
-                    std::cout << " [Valid]\n";
                     folder_name = start_path;
                     collect_file();
                     return true;
                 }
-                std::cout << " [Invalid]\n";
             }
 
             // Try current child folder
@@ -89,7 +86,6 @@ private:
                     if (boost::filesystem::is_directory(std::string(entry.path().string() + "/" + foldername)))
                     {
                         folder_name = entry.path().string() + "/" + foldername;
-                        std::cout << "Used : " << folder_name << std::endl;
                         collect_file();
                         return true;
                     }
