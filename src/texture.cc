@@ -1,4 +1,4 @@
-#include <texture.h>
+#include <texture.hpp>
 
 Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType)
 {
@@ -13,10 +13,10 @@ Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format, 
     unsigned char *bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
 
     // Generates an OpenGL texture object
-    glGenTextures(1, &ID);
+    glGenTextures(1, &_id);
     // Assigns the texture to a Texture Unit
     glActiveTexture(slot);
-    glBindTexture(texType, ID);
+    glBindTexture(texType, _id);
 
     // Configures the type of algorithm that is used to make the image smaller or bigger
     glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
@@ -52,17 +52,27 @@ void Texture::texUnit(Shader &shader, const char *uniform, GLuint unit)
     glUniform1i(texUni, unit);
 }
 
-void Texture::Bind()
+GLuint Texture::get_id()
 {
-    glBindTexture(type, ID);
+    return _id;
 }
 
-void Texture::Unbind()
+GLenum Texture::get_type()
+{
+    return type;
+}
+
+void Texture::bind()
+{
+    glBindTexture(type, _id);
+}
+
+void Texture::unbind()
 {
     glBindTexture(type, 0);
 }
 
 void Texture::Delete()
 {
-    glDeleteTextures(1, &ID);
+    glDeleteTextures(1, &_id);
 }
