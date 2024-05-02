@@ -135,6 +135,8 @@ private:
         if (folder_name == "" || std::empty(folder_name))
         {
             std::cout << "Please set the folder name first" << std::endl;
+            boost::filesystem::create_directory("sample");
+            FileHandler::read("sample");
             return;
         }
 
