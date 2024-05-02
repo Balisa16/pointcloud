@@ -12,7 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <pcl/point_types.h>./
+#include <pcl/point_types.h>
 
 class PCD
 {
