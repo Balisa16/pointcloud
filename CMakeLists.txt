@@ -23,6 +23,7 @@ add_library(${PROJECT_NAME} SHARED
     src/stb.cc
     src/camera.cc
     src/window.cc
+    src/tcpserver.cc
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
