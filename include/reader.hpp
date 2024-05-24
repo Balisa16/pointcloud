@@ -201,6 +201,15 @@ private:
         std::istringstream iss(line);
         std::string token;
         iss >> token >> data.view_point.x >> data.view_point.z >> data.view_point.y >> data.view_point.qw >> data.view_point.qx >> data.view_point.qz >> data.view_point.qy;
+        
+        // data.view_point.x = -data.view_point.x;
+        // data.view_point.y = -data.view_point.y;
+        // data.view_point.z = -data.view_point.z;
+
+        // data.view_point.qx = -data.view_point.qx;
+        // data.view_point.qy = -data.view_point.qy;
+        // data.view_point.qz = -data.view_point.qz;
+
         // data.view_point.qx = std::fabs(data.view_point.qx);
         // data.view_point.qy = std::fabs(data.view_point.qy);
         // data.view_point.qz = std::fabs(data.view_point.qz);
@@ -245,9 +254,10 @@ private:
                 convert_rgb(rgb, point);
                 if (is_need_transform)
                     transf.transform(point, point);
-                data.gl_data[i * 6] = point.x;
-                data.gl_data[i * 6 + 1] = point.y;
-                data.gl_data[i * 6 + 2] = point.z;
+                data.gl_data[i * 6] = -point.x;
+                // y is minus because D455 image is upside down
+                data.gl_data[i * 6 + 1] = -point.y;
+                data.gl_data[i * 6 + 2] = -point.z;
                 data.gl_data[i * 6 + 3] = point.r / 255.f;
                 data.gl_data[i * 6 + 4] = point.g / 255.f;
                 data.gl_data[i * 6 + 5] = point.b / 255.f;

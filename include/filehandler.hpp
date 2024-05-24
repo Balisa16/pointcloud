@@ -114,8 +114,8 @@ private:
         _temp_buff = _pcd_format;
 
         camera_frame.add(
-            {_pcd_format.view_point.x,
-             _pcd_format.view_point.y,
+            {-_pcd_format.view_point.x,
+             -_pcd_format.view_point.y, // flip y because D455 is upside down
              _pcd_format.view_point.z},
             {_pcd_format.view_point.qw,
              _pcd_format.view_point.qx,
@@ -123,7 +123,7 @@ private:
              _pcd_format.view_point.qz});
 
         std::cout << " [OK]\n";
-        std::cout << "Position : " << _pcd_format.view_point.x << ", " << _pcd_format.view_point.y << ", " << _pcd_format.view_point.z << "\tQuaternion : " << _pcd_format.view_point.qw << ", " << _pcd_format.view_point.qx << ", " << _pcd_format.view_point.qy << ", " << _pcd_format.view_point.qz << '\n';
+        // std::cout << "Position : " << _pcd_format.view_point.x << ", " << _pcd_format.view_point.y << ", " << _pcd_format.view_point.z << "\tQuaternion : " << _pcd_format.view_point.qw << ", " << _pcd_format.view_point.qx << ", " << _pcd_format.view_point.qy << ", " << _pcd_format.view_point.qz << '\n';
         return 0;
     }
 
