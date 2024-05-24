@@ -200,7 +200,10 @@ private:
     {
         std::istringstream iss(line);
         std::string token;
-        iss >> token >> data.view_point.x >> data.view_point.y >> data.view_point.z >> data.view_point.qw >> data.view_point.qx >> data.view_point.qy >> data.view_point.qz;
+        iss >> token >> data.view_point.x >> data.view_point.z >> data.view_point.y >> data.view_point.qw >> data.view_point.qx >> data.view_point.qz >> data.view_point.qy;
+        // data.view_point.qx = std::fabs(data.view_point.qx);
+        // data.view_point.qy = std::fabs(data.view_point.qy);
+        // data.view_point.qz = std::fabs(data.view_point.qz);
     }
 
     void parseNumPoints(const std::string &line)

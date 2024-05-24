@@ -122,7 +122,8 @@ private:
              _pcd_format.view_point.qy,
              _pcd_format.view_point.qz});
 
-        std::cout << " [OK]" << std::endl;
+        std::cout << " [OK]\n";
+        std::cout << "Position : " << _pcd_format.view_point.x << ", " << _pcd_format.view_point.y << ", " << _pcd_format.view_point.z << "\tQuaternion : " << _pcd_format.view_point.qw << ", " << _pcd_format.view_point.qx << ", " << _pcd_format.view_point.qy << ", " << _pcd_format.view_point.qz << '\n';
         return 0;
     }
 

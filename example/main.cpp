@@ -40,7 +40,7 @@ int main()
     Window win("Pointcloud", width, height);
     GLFWwindow *window = win.get_window();
 
-    Shader shader("../../script/pc.vert", "../../script/pc.frag");
+    Shader shader("script/pc.vert", "script/pc.frag");
 
     // Pointcloud VAO and VBO
     VAO pc_vao;
