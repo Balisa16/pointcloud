@@ -59,6 +59,10 @@ private:
             for (boost::filesystem::directory_iterator it(folder_name); it != boost::filesystem::directory_iterator(); ++it)
                 if (boost::filesystem::is_regular_file(it->status()) && it->path().extension() == ".pcd")
                     file_list.push_back(it->path().filename().string());
+
+            // Sort the list descending
+            std::sort(file_list.rbegin(), file_list.rend());
+
             std::cout << "Found " << file_list.size() << " pcd files" << std::endl;
         };
 
